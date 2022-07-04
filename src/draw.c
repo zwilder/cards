@@ -1,0 +1,72 @@
+#include <cards.h>
+
+int g_screenW = 0;
+int g_screenH = 0;
+
+void scr_init(void) {
+    struct winsize ws;
+    ioctl(0,TIOCGWINSZ,&ws);
+    g_screenW = ws.ws_col;
+    g_screenH = ws.ws_row;
+    printf("\x1b[?1049h"); //Alternate buffer
+    printf("\x1b[?25l"); //Hides cursor (l = low,0)
+    scr_reset();
+    scr_clear();
+}
+
+void scr_restore(void) {
+    scr_reset();
+    scr_clear();
+    printf("\x1b[?1049l");
+    printf("\x1b[?25h"); //Show cursor (h = high,1)
+}
+
+void scr_reset(void) {
+    printf("\x1b[0m"); //Reset to default
+    fflush(stdout);
+}
+
+void scr_clear(void) {
+    printf("\x1b[H\x1b[J"); //?
+    fflush(stdout);
+}
+
+void scr_pt_char(int x, int y, char c) {
+    printf("\x1b[%d;%dH%c", y+1,x+1,c); //coordinates start at 1,1
+    fflush(stdout);
+}
+
+void scr_pt_clr_char(int x, int y, uint8_t fg, uint8_t bg, char c) {
+    scr_set_clr(fg,bg);
+    scr_pt_char(x,y,c);
+    scr_reset();
+}
+
+void scr_pt(int x, int y, char *fstr,...) {
+    va_list args;
+    va_start(args,fstr);
+    scr_set_curs(x,y);
+    vprintf(fstr, args);
+    fflush(stdout);
+    va_end(args);
+}
+
+void scr_pt_clr(int x, int y, uint8_t fg, uint8_t bg, char *fstr,...) {
+    va_list args;
+    va_start(args, fstr);
+    scr_set_curs(x,y);
+    scr_set_clr(fg,bg);
+    vprintf(fstr, args);
+    scr_reset();
+    fflush(stdout);
+    va_end(args);
+}
+
+void scr_set_clr(uint8_t fg, uint8_t bg) {
+    printf("\x1b[38;5;%dm\x1b[48;5;%dm",fg,bg);
+    fflush(stdout);
+}
+
+void scr_set_curs(int x, int y) {
+    printf("\x1b[%d;%dH",y+1,x+1);
+}
