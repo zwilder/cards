@@ -18,5 +18,6 @@
  *********/
 #include <draw.h>
 #include <input.h>
+#include <deck.h>
 
 #endif
