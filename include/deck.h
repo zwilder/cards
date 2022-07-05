@@ -46,6 +46,8 @@ void pt_deck_stack_at(int x, int y);
 void pt_deck_stack_clr_at(int x, int y, int color);
 void pt_deck_stackv_at(int x, int y);
 void pt_deck_stackv_clr_at(int x, int y, int color);
+void pt_card_spc_at(int x, int y, char c, char *suite);
+void pt_card_spc_clr_at(int x, int y, char c, char *suite, uint8_t fg, uint8_t bg); 
 
 /****************
  * Deck functions

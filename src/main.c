@@ -31,18 +31,14 @@ int main(int argc, char **argv) {
     Deck *tmp = NULL;
     bool running = true;
     char input = 0;
-    int x = 0;
-    int y = 0;
-    tmp = deck;
-    while(tmp) {
-        pt_card_clr_at(x,y,tmp->card);
-        x += 6;
-        if(x >= 78) {
-            x = 0;
-            y += 6;
-        }
-        tmp = tmp->next;
-    }
+    int x = g_screenW / 2;
+    int y = g_screenH / 2;
+    y -= 3;
+    pt_card_spc_at(x - 12,y,'C',"\u2660");
+    pt_card_spc_at(x - 6,y,'a',"\u2665");
+    pt_card_spc_at(x,y,'r',"\u2666");
+    pt_card_spc_at(x + 6,y,'d',"\u2663");
+    pt_card_spc_at(x + 12,y,'s',"\u2660");
     scr_pt(0,g_screenH - 1,"Deck Size: %d. Press q to exit, r to shuffle deck, d to draw card.", count_deck(deck));
     while(running) {
         // Handle events
@@ -67,23 +63,24 @@ int main(int argc, char **argv) {
                 break;
         }
         // Draw
-        x = 8;
+        x = 6;
         y = 0;
         scr_clear();
         tmp = hand;
         while(tmp) {
             pt_card_clr_at(x,y,tmp->card);
-            x += 8;
+            x += 6;
             if(x >= 78) {
-                x = 0;
+                x = 6;
                 y += 6;
             }
             tmp = tmp->next;
         }
-        if(count_deck(deck) > 2) {
+        x = count_deck(deck);
+        if(x > 1) {
             pt_deck_stack_clr_at(0,0,43);
-        } else {
-            pt_card_back_clr_at(0,0, 43);
+        } else if (x == 1) {
+            pt_card_back_clr_at(0,0,43);
         }
         scr_pt(0,g_screenH - 1,"Deck Size: %d. Press q to exit, r to shuffle deck, d to draw card.", count_deck(deck));
     }
