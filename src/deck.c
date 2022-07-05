@@ -31,7 +31,13 @@ U+257x	╰	╱	╲	╳	╴	╵	╶	╷	╸	╹	╺	╻	╼	╽	╾	╿
 U+258x	▀	▁	▂	▃	▄	▅	▆	▇	█	▉	▊	▋	▌	▍	▎	▏
 
 U+259x	▐	░	▒	▓	▔	▕	▖	▗	▘	▙	▚	▛	▜	▝	▞	▟
-
+ *┌─   ─┐
+ *│♥═══╗│♥═══╗
+ * ║   ║ ║   ║
+ * ║ 7 ║ ║ A ║
+ * ║   ║ ║   ║
+ *│╚═══♥│╚═══♥
+ *└─   ─┘
  */
 char* get_suite(int card) {
     char *suite = malloc(10 * sizeof(char));
@@ -334,7 +340,13 @@ Deck* find_card(Deck **headref, int card) {
 Deck* remove_card(Deck **headref, Deck *card) {
     Deck *result = *headref;
     Deck *prev = NULL;
-    if(!result) return NULL;
+    if(!result || !card) return NULL;
+    if(*headref == card) {
+        result = *headref;
+        *headref = (*headref)->next;
+        result->next = NULL;
+        return result;
+    }
     while(result != card) {
         prev = result;
         result = result->next;
@@ -346,11 +358,25 @@ Deck* remove_card(Deck **headref, Deck *card) {
     return result;
 }
 
-void shuffle_deck(Deck **headref) {
-
+void shuffle_deck(Deck **headref, int rounds) {
+    int i,j,n;
+    int decksize = count_deck(*headref);
+    Deck *tmp = NULL;
+    for(i = 0; i < rounds; i++) {
+        //Get random number from 0 to decksize - 1
+        n = mt_rand(0,decksize - 1);
+        tmp = *headref;
+        j = 0;
+        while(j != n) {
+           tmp = tmp->next;
+           j++;
+        } 
+        push_card(headref, remove_card(headref, tmp));
+    }
 }
 
 void push_card(Deck **headref, Deck *card) {
+    if(!card) return;
     if(!(*headref)) {
         *headref = card;
         return;
@@ -366,6 +392,11 @@ void destroy_deck(Deck **headref) {
         *headref = (*headref)->next;
         free(tmp);
     }
+}
+
+int count_deck(Deck *cards) {
+    if(!cards) return 0;
+    return (count_deck(cards->next) + 1);
 }
 
 Deck* create_std_deck(void) {

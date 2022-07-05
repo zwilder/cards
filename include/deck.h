@@ -1,6 +1,9 @@
 #ifndef DECK_H
 #define DECK_H
 
+#define CARD_WIDTH 6
+#define CARD_HEIGHT 6
+
 typedef enum {
     CD_NONE     = 1 << 0,
     CD_A        = 1 << 1,
@@ -45,14 +48,15 @@ void pt_deck_stackv_at(int x, int y);
 void pt_deck_stackv_clr_at(int x, int y, int color);
 
 /****************
- * Hand functions
+ * Deck functions
  ****************/
 Deck* create_card(int card);
 Deck* find_card(Deck **headref, int card);
 Deck* remove_card(Deck **headref, Deck *card);
-void shuffle_deck(Deck **headref);
+void shuffle_deck(Deck **headref, int rounds);
 void push_card(Deck **headref, Deck *card);
 void destroy_deck(Deck **headref);
+int count_deck(Deck *cards);
 
 Deck* create_std_deck(void);
 
