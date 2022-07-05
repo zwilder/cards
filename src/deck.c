@@ -326,11 +326,23 @@ void pt_card_spc_at(int x, int y, char c, char *suite) {
 }
 
 void pt_card_spc_clr_at(int x, int y, char c, char *suite, uint8_t fg, uint8_t bg) {
-    scr_pt_clr(x,y,fg,bg, "%s\u2550\u2550\u2550\u2557", suite);
-    scr_pt_clr(x,y+1,fg,bg, "\u2551   \u2551");
-    scr_pt_clr(x,y+2,fg,bg, "\u2551 %c \u2551", c);
-    scr_pt_clr(x,y+3,fg,bg, "\u2551   \u2551");
-    scr_pt_clr(x,y+4,fg,bg, "\u255A\u2550\u2550\u2550%s", suite);
+    /*
+    if(((card & CD_S) == CD_S) || ((card & CD_C) == CD_C)) {
+        fg = 239;
+    } else {
+        fg = 203;
+    }
+    bg = 15;
+    */
+
+    scr_pt_clr(x,y,fg,0,"%s\u2550\u2550\u2550\u2557", suite);
+    scr_pt_clr(x,y+1,fg,0, "\u2551   \u2551");
+    scr_pt_clr(x+1,y+1,fg,bg, "   ");
+    scr_pt_clr(x,y+2,fg,0, "\u2551   \u2551");
+    scr_pt_clr(x+1,y+2,fg,bg, " %c ", c);
+    scr_pt_clr(x,y+3,fg,0, "\u2551   \u2551");
+    scr_pt_clr(x+1,y+3,fg,bg, "   ");
+    scr_pt_clr(x,y+4,fg,0, "\u255A\u2550\u2550\u2550%s", suite);
 }
 
 /****************

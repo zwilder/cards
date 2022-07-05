@@ -34,11 +34,20 @@ int main(int argc, char **argv) {
     int x = g_screenW / 2;
     int y = g_screenH / 2;
     y -= 3;
+    /*
     pt_card_spc_at(x - 12,y,'C',"\u2660");
     pt_card_spc_at(x - 6,y,'a',"\u2665");
     pt_card_spc_at(x,y,'r',"\u2666");
     pt_card_spc_at(x + 6,y,'d',"\u2663");
     pt_card_spc_at(x + 12,y,'s',"\u2660");
+    */
+    pt_card_back_clr_at(x - 18,y,43);
+    pt_card_spc_clr_at(x - 12,y,'C',"\u2660",239,15);
+    pt_card_spc_clr_at(x - 6,y,'a',"\u2665",203,15);
+    pt_card_spc_clr_at(x,y,'r',"\u2666",239,15);
+    pt_card_spc_clr_at(x + 6,y,'d',"\u2663",203,15);
+    pt_card_spc_clr_at(x + 12,y,'s',"\u2660",239,15);
+    pt_card_back_clr_at(x + 18,y,43);
     scr_pt(0,g_screenH - 1,"Deck Size: %d. Press q to exit, r to shuffle deck, d to draw card.", count_deck(deck));
     while(running) {
         // Handle events
