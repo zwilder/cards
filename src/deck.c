@@ -410,3 +410,22 @@ Deck* create_std_deck(void) {
     }
     return result;
 }
+
+void draw_card(Deck **from, Deck **to) {
+    if(!(*from)) return;
+    int i = 0;
+    int n = mt_rand(0, count_deck(*from) - 1);
+    Deck *tmp = *from;
+    while(i != n) {
+        tmp = tmp->next;
+        i++;
+    }
+    push_card(to, remove_card(from, tmp));
+}
+
+void add_cards(Deck **from, Deck **to) {
+    if(!(*from)) return;
+    while(*from) {
+        draw_card(from, to);
+    }
+}

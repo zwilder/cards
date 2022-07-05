@@ -27,6 +27,7 @@ int main(int argc, char **argv) {
     pt_deck_stackv_clr_at(12,36,43);
     */
     Deck *deck = create_std_deck();
+    Deck *hand = NULL;
     Deck *tmp = NULL;
     bool running = true;
     char input = 0;
@@ -42,7 +43,7 @@ int main(int argc, char **argv) {
         }
         tmp = tmp->next;
     }
-    scr_pt(0,g_screenH - 1,"Deck Size: %d. Press q to exit, r to shuffle.", count_deck(deck));
+    scr_pt(0,g_screenH - 1,"Deck Size: %d. Press q to exit, r to shuffle deck, d to draw card.", count_deck(deck));
     while(running) {
         // Handle events
         input = kb_get_char();
@@ -52,31 +53,45 @@ int main(int argc, char **argv) {
                 running = false;
                 break;
             case 'r':
+                /*
+                while(hand) {
+                    draw_card(&hand, &deck);
+                }*/
+                add_cards(&hand, &deck);
                 shuffle_deck(&deck, 500);
+                break;
+            case 'd':
+                draw_card(&deck, &hand);
                 break;
             default:
                 break;
         }
         // Draw
-        x = 0;
+        x = 8;
         y = 0;
         scr_clear();
-        tmp = deck;
+        tmp = hand;
         while(tmp) {
             pt_card_clr_at(x,y,tmp->card);
-            x += 6;
+            x += 8;
             if(x >= 78) {
                 x = 0;
                 y += 6;
             }
             tmp = tmp->next;
         }
-        scr_pt(0,g_screenH - 1,"Deck Size: %d. Press q to exit, r to shuffle.", count_deck(deck));
+        if(count_deck(deck) > 2) {
+            pt_deck_stack_clr_at(0,0,43);
+        } else {
+            pt_card_back_clr_at(0,0, 43);
+        }
+        scr_pt(0,g_screenH - 1,"Deck Size: %d. Press q to exit, r to shuffle deck, d to draw card.", count_deck(deck));
     }
 
     scr_clear();
 
     destroy_deck(&deck);
+    destroy_deck(&hand);
     scr_restore();
     kb_restore();
     return 0;

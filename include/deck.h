@@ -59,5 +59,7 @@ void destroy_deck(Deck **headref);
 int count_deck(Deck *cards);
 
 Deck* create_std_deck(void);
+void draw_card(Deck **from, Deck **to);
+void add_cards(Deck **from, Deck **to); 
 
 #endif
