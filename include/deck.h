@@ -20,11 +20,17 @@ typedef enum {
     CD_S        = 1 << 15,
     CD_C        = 1 << 16,
     CD_D        = 1 << 17
-} CardFlags;
+} DeckFlags;
 
-/******************
- * deck.c functions
- ******************/
+struct Deck {
+    int card;
+    struct Deck *next;
+};
+typedef struct Deck Deck;
+
+/*************************
+ * Deck printing functions
+ *************************/
 char* get_suite(int card);
 int get_value(int card);
 char* get_value_str(int card);
@@ -37,4 +43,17 @@ void pt_deck_stack_at(int x, int y);
 void pt_deck_stack_clr_at(int x, int y, int color);
 void pt_deck_stackv_at(int x, int y);
 void pt_deck_stackv_clr_at(int x, int y, int color);
+
+/****************
+ * Hand functions
+ ****************/
+Deck* create_card(int card);
+Deck* find_card(Deck **headref, int card);
+Deck* remove_card(Deck **headref, Deck *card);
+void shuffle_deck(Deck **headref);
+void push_card(Deck **headref, Deck *card);
+void destroy_deck(Deck **headref);
+
+Deck* create_std_deck(void);
+
 #endif

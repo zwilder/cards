@@ -1,4 +1,8 @@
 #include <cards.h>
+
+/*************************
+ * Card printing functions
+ *************************/
 /* Playing Cards
  * ♠ u2660, ♤ u2664
  * ♥ u2665, ♡ u2661
@@ -28,27 +32,6 @@ U+258x	▀	▁	▂	▃	▄	▅	▆	▇	█	▉	▊	▋	▌	▍	▎	▏
 
 U+259x	▐	░	▒	▓	▔	▕	▖	▗	▘	▙	▚	▛	▜	▝	▞	▟
 
- * Cards are 5x5 in size
- * ♠═══╗
- * ║   ║
- * ║ 5 ║
- * ║   ║
- * ╚═══♠
- * ♠═══╗
- * ║   ║
- * ║10 ║
- * ║   ║
- * ╚═══♠
- * ╔═══╗
- * ║╔╗/║
- * ║╚║╗║
- * ║/╚╝║
- * ╚═══╝
- * ╔╔╔═══╗
- * ║║║╔╗/║
- * ║║║╚║╗║
- * ║║║/╚╝║
- * ╚╚╚═══╝
  */
 char* get_suite(int card) {
     char *suite = malloc(10 * sizeof(char));
@@ -326,4 +309,73 @@ void pt_deck_stackv_clr_at(int x, int y, int color) {
     pt_card_back_clr_at(x,y,color);
     pt_card_back_clr_at(x,y+1,color);
     pt_card_back_clr_at(x,y+2,color);
+}
+
+/****************
+ * Deck functions
+ ****************/
+Deck* create_card(int card) {
+    Deck *newcard = malloc(sizeof(Deck));
+    newcard->card = card;
+    newcard->next = NULL;
+    return newcard;
+}
+Deck* find_card(Deck **headref, int card) {
+    Deck *result = *headref;
+    if(!result) return NULL;
+
+    while(result->card != card) {
+        result = result->next;
+        if(!result) break;
+    }
+    return result;
+}
+
+Deck* remove_card(Deck **headref, Deck *card) {
+    Deck *result = *headref;
+    Deck *prev = NULL;
+    if(!result) return NULL;
+    while(result != card) {
+        prev = result;
+        result = result->next;
+    }
+    if(result) {
+        prev->next = result->next;
+        result->next = NULL;
+    }
+    return result;
+}
+
+void shuffle_deck(Deck **headref) {
+
+}
+
+void push_card(Deck **headref, Deck *card) {
+    if(!(*headref)) {
+        *headref = card;
+        return;
+    }
+    card->next = *headref;
+    *headref = card;
+}
+
+void destroy_deck(Deck **headref) {
+    Deck *tmp = *headref;
+    while(*headref) {
+        tmp = *headref;
+        *headref = (*headref)->next;
+        free(tmp);
+    }
+}
+
+Deck* create_std_deck(void) {
+    Deck *result = NULL;
+    int n = 1;
+    for(n = 1; n <= 13; n++) {
+        push_card(&result, create_card(get_card(n, 'h')));
+        push_card(&result, create_card(get_card(n, 'c')));
+        push_card(&result, create_card(get_card(n, 'd')));
+        push_card(&result, create_card(get_card(n, 's')));
+    }
+    return result;
 }
