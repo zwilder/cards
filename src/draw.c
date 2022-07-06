@@ -70,3 +70,27 @@ void scr_set_clr(uint8_t fg, uint8_t bg) {
 void scr_set_curs(int x, int y) {
     printf("\x1b[%d;%dH",y+1,x+1);
 }
+
+void scr_set_style(int style) {
+    if((style & ST_BOLD) == ST_BOLD) {
+        printf("\x1b[1m");
+    }
+    if((style & ST_DIM) == ST_DIM) {
+        printf("\x1b[2m");
+    }
+    if((style & ST_ITALIC) == ST_ITALIC) {
+        printf("\x1b[3m");
+    }
+    if((style & ST_ULINE) == ST_ULINE) {
+        printf("\x1b[4m");
+    }
+    if((style & ST_BLINK) == ST_BLINK) {
+        printf("\x1b[5m");
+    }
+    if((style & ST_STRIKE) == ST_STRIKE) {
+        printf("\x1b[9m");
+    }
+    if((style & ST_NONE) == ST_NONE) {
+        printf("\x1b[0m");
+    }
+}

@@ -9,23 +9,6 @@ int main(int argc, char **argv) {
     kb_init();
     init_genrand(time(NULL));
 
-    /* int x;
-    for(x = 1; x < 14; x++) {
-        pt_card_clr_at((6*x)-6,0,get_card(x,'h'));
-        pt_card_clr_at((6*x)-6,6,get_card(x,'s'));
-        pt_card_clr_at((6*x)-6,12,get_card(x,'d'));
-        pt_card_clr_at((6*x)-6,18,get_card(x,'c'));
-    }
-    */
-    /*
-    pt_card_back_at(6,24);
-    pt_card_back_clr_at(12,24,43);
-    pt_deck_stack_at(6,30);
-    pt_deck_stack_clr_at(14,30,43);
-
-    pt_deck_stackv_at(6,36);
-    pt_deck_stackv_clr_at(12,36,43);
-    */
     Deck *deck = create_std_deck();
     Deck *hand = NULL;
     Deck *tmp = NULL;
@@ -34,19 +17,12 @@ int main(int argc, char **argv) {
     int x = g_screenW / 2;
     int y = g_screenH / 2;
     y -= 3;
-    /*
-    pt_card_spc_at(x - 12,y,'C',"\u2660");
-    pt_card_spc_at(x - 6,y,'a',"\u2665");
-    pt_card_spc_at(x,y,'r',"\u2666");
-    pt_card_spc_at(x + 6,y,'d',"\u2663");
-    pt_card_spc_at(x + 12,y,'s',"\u2660");
-    */
     pt_card_back_clr_at(x - 18,y,43);
-    pt_card_spc_clr_at(x - 12,y,'C',"\u2660",239,15);
-    pt_card_spc_clr_at(x - 6,y,'a',"\u2665",203,15);
-    pt_card_spc_clr_at(x,y,'r',"\u2666",239,15);
-    pt_card_spc_clr_at(x + 6,y,'d',"\u2663",203,15);
-    pt_card_spc_clr_at(x + 12,y,'s',"\u2660",239,15);
+    pt_card_spc_clr_at(x - 12,y,'C',"\u2660",250,0);
+    pt_card_spc_clr_at(x - 6,y,'a',"\u2665",203,0);
+    pt_card_spc_clr_at(x,y,'r',"\u2666",250,0);
+    pt_card_spc_clr_at(x + 6,y,'d',"\u2663",203,0);
+    pt_card_spc_clr_at(x + 12,y,'s',"\u2660",250,0);
     pt_card_back_clr_at(x + 18,y,43);
     scr_pt(0,g_screenH - 1,"Deck Size: %d. Press q to exit, r to shuffle deck, d to draw card.", count_deck(deck));
     while(running) {
@@ -58,21 +34,20 @@ int main(int argc, char **argv) {
                 running = false;
                 break;
             case 'r':
-                /*
-                while(hand) {
-                    draw_card(&hand, &deck);
-                }*/
                 add_cards(&hand, &deck);
                 shuffle_deck(&deck, 500);
                 break;
             case 'd':
-                draw_card(&deck, &hand);
+                draw_cards(&deck, &hand, 5);
+                break;
+            case 's':
+                merge_sort_deck(&hand);
                 break;
             default:
                 break;
         }
         // Draw
-        x = 6;
+        x = 7;
         y = 0;
         scr_clear();
         tmp = hand;
@@ -80,7 +55,7 @@ int main(int argc, char **argv) {
             pt_card_clr_at(x,y,tmp->card);
             x += 6;
             if(x >= 78) {
-                x = 6;
+                x = 7;
                 y += 6;
             }
             tmp = tmp->next;

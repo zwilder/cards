@@ -32,12 +32,19 @@ U+258x	▀	▁	▂	▃	▄	▅	▆	▇	█	▉	▊	▋	▌	▍	▎	▏
 
 U+259x	▐	░	▒	▓	▔	▕	▖	▗	▘	▙	▚	▛	▜	▝	▞	▟
  *┌─   ─┐
- *│♥═══╗│♥═══╗
+ *│♥═7═╗│♥═A═╗
  * ║   ║ ║   ║
  * ║ 7 ║ ║ A ║
  * ║   ║ ║   ║
- *│╚═══♥│╚═══♥
+ *│╚═7═♥│╚═A═♥
  *└─   ─┘
+ *   ⇩  (u21E9)   
+ * ♥═10╗ ♥═A═╗
+ * ║   ║ ║   ║
+ * ║ 10║ ║ A ║
+ * ║   ║ ║   ║
+ * ╚═10♥ ╚═A═♥
+ * └───┘ (u2514u2500u2500u2500u2518)
  */
 char* get_suite(int card) {
     char *suite = malloc(10 * sizeof(char));
@@ -200,15 +207,17 @@ void pt_card_at(int x, int y, int card) {
     char *value = get_value_str(card);
 
     if(value && suite) {
-        scr_pt(x,y, "%s\u2550\u2550\u2550\u2557", suite);
         scr_pt(x,y+1, "\u2551   \u2551");
         if(val == 10) {
+            scr_pt(x,y, "%s\u2550%s\u2557", suite, value);
             scr_pt(x,y+2, "\u2551%s \u2551", value);
+            scr_pt(x,y+4, "\u255A%s\u2550%s",value, suite);
         } else {
+            scr_pt(x,y, "%s\u2550%s\u2550\u2557", suite,value);
             scr_pt(x,y+2, "\u2551 %s \u2551", value);
+            scr_pt(x,y+4, "\u255A\u2550%s\u2550%s",value, suite);
         }
         scr_pt(x,y+3, "\u2551   \u2551");
-        scr_pt(x,y+4, "\u255A\u2550\u2550\u2550%s", suite);
     }
 
     free(value);
@@ -222,25 +231,27 @@ void pt_card_clr_at(int x, int y, int card) {
     char *value = get_value_str(card);
     uint8_t fg,bg;
     if(((card & CD_S) == CD_S) || ((card & CD_C) == CD_C)) {
-        fg = 239;
+        fg = 250;
     } else {
         fg = 203;
     }
-    bg = 15;
+    bg = 0;
 
     if(value && suite) {
-        scr_pt_clr(x,y,fg,0,"%s\u2550\u2550\u2550\u2557", suite);
         scr_pt_clr(x,y+1,fg,0, "\u2551   \u2551");
         scr_pt_clr(x+1,y+1,fg,bg, "   ");
         scr_pt_clr(x,y+2,fg,0, "\u2551   \u2551");
         if(val == 10) {
+            scr_pt_clr(x,y,fg,0,"%s\u2550%s\u2557", suite,value);
             scr_pt_clr(x+1,y+2,fg,bg, "%s ",value);
+            scr_pt_clr(x,y+4,fg,0, "\u255A%s\u2550%s",value, suite);
         } else {
+            scr_pt_clr(x,y,fg,0,"%s\u2550%s\u2550\u2557", suite,value);
             scr_pt_clr(x+1,y+2,fg,bg, " %s ", value);
+            scr_pt_clr(x,y+4,fg,0, "\u255A\u2550%s\u2550%s",value, suite);
         }
         scr_pt_clr(x,y+3,fg,0, "\u2551   \u2551");
         scr_pt_clr(x+1,y+3,fg,bg, "   ");
-        scr_pt_clr(x,y+4,fg,0, "\u255A\u2550\u2550\u2550%s", suite);
     }
 
     free(value);
@@ -326,15 +337,6 @@ void pt_card_spc_at(int x, int y, char c, char *suite) {
 }
 
 void pt_card_spc_clr_at(int x, int y, char c, char *suite, uint8_t fg, uint8_t bg) {
-    /*
-    if(((card & CD_S) == CD_S) || ((card & CD_C) == CD_C)) {
-        fg = 239;
-    } else {
-        fg = 203;
-    }
-    bg = 15;
-    */
-
     scr_pt_clr(x,y,fg,0,"%s\u2550\u2550\u2550\u2557", suite);
     scr_pt_clr(x,y+1,fg,0, "\u2551   \u2551");
     scr_pt_clr(x+1,y+1,fg,bg, "   ");
@@ -343,6 +345,18 @@ void pt_card_spc_clr_at(int x, int y, char c, char *suite, uint8_t fg, uint8_t b
     scr_pt_clr(x,y+3,fg,0, "\u2551   \u2551");
     scr_pt_clr(x+1,y+3,fg,bg, "   ");
     scr_pt_clr(x,y+4,fg,0, "\u255A\u2550\u2550\u2550%s", suite);
+}
+
+void pt_card_active(int x, int y) {
+    /*   
+     *┌─   ─┐
+     *│♥═══╗│♥═══╗
+     * ║   ║ ║   ║
+     * ║ 7 ║ ║ A ║
+     * ║   ║ ║   ║
+     *│╚═══♥│╚═══♥
+     *└─   ─┘
+     */
 }
 
 /****************
@@ -427,6 +441,60 @@ int count_deck(Deck *cards) {
     return (count_deck(cards->next) + 1);
 }
 
+void merge_sort_deck(Deck **headref) {
+    Deck *head = *headref;
+    Deck *a = NULL;
+    Deck *b = NULL;
+
+    if(!head || !head->next) return;
+    ft_bk_splt(head, &a, &b);
+    merge_sort_deck(&a);
+    merge_sort_deck(&b);
+    *headref = sorted_merge(a,b);
+}
+
+Deck* sorted_merge(Deck *a, Deck *b) {
+    Deck *result = NULL;
+    if(!a) {
+        return b;
+    } else if(!b) {
+        return a;
+    }
+    int aval = get_value(a->card);
+    int bval = get_value(b->card);
+    if((a->card & CD_H) == CD_H) aval += 13;
+    if((a->card & CD_S) == CD_S) aval += 26;
+    if((a->card & CD_D) == CD_D) aval += 39;
+    if((b->card & CD_H) == CD_H) bval += 13;
+    if((b->card & CD_S) == CD_S) bval += 26;
+    if((b->card & CD_D) == CD_D) bval += 39;
+    if(aval <= bval) {
+        result = a;
+        result->next = sorted_merge(a->next, b);
+    } else {
+        result = b;
+        result->next = sorted_merge(a, b->next);
+    }
+    return result;
+}
+
+void ft_bk_splt(Deck *source, Deck **frontref, Deck **backref) {
+    Deck *fast = NULL;
+    Deck *slow = NULL;
+    slow = source;
+    fast = source->next;
+    while(fast) {
+        fast = fast->next;
+        if(fast) {
+            slow = slow->next;
+            fast = fast->next;
+        }
+    }
+    *frontref = source;
+    *backref = slow->next;
+    slow->next = NULL;
+}
+
 Deck* create_std_deck(void) {
     Deck *result = NULL;
     int n = 1;
@@ -449,6 +517,15 @@ void draw_card(Deck **from, Deck **to) {
         i++;
     }
     push_card(to, remove_card(from, tmp));
+}
+
+void draw_cards(Deck **from, Deck **to, int n) {
+    if(!(*from)) return;
+    int i = 0;
+    while(i < n) {
+        draw_card(from,to);
+        i++;
+    }
 }
 
 void add_cards(Deck **from, Deck **to) {

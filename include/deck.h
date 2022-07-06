@@ -22,7 +22,9 @@ typedef enum {
     CD_H        = 1 << 14,
     CD_S        = 1 << 15,
     CD_C        = 1 << 16,
-    CD_D        = 1 << 17
+    CD_D        = 1 << 17,
+    CD_ACTIVE   = 1 << 18,
+    CD_DOWN     = 1 << 19
 } DeckFlags;
 
 struct Deck {
@@ -48,6 +50,7 @@ void pt_deck_stackv_at(int x, int y);
 void pt_deck_stackv_clr_at(int x, int y, int color);
 void pt_card_spc_at(int x, int y, char c, char *suite);
 void pt_card_spc_clr_at(int x, int y, char c, char *suite, uint8_t fg, uint8_t bg); 
+void pt_card_active(int x, int y);
 
 /****************
  * Deck functions
@@ -59,9 +62,13 @@ void shuffle_deck(Deck **headref, int rounds);
 void push_card(Deck **headref, Deck *card);
 void destroy_deck(Deck **headref);
 int count_deck(Deck *cards);
+void merge_sort_deck(Deck **headref);
+Deck* sorted_merge(Deck *a, Deck *b);
+void ft_bk_splt(Deck *source, Deck **frontref, Deck **backref);
 
 Deck* create_std_deck(void);
 void draw_card(Deck **from, Deck **to);
+void draw_cards(Deck **from, Deck **to, int n);
 void add_cards(Deck **from, Deck **to); 
 
 #endif
