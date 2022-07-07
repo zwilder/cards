@@ -23,8 +23,6 @@ typedef enum {
     CD_S        = 1 << 15,
     CD_C        = 1 << 16,
     CD_D        = 1 << 17,
-    CD_ACTIVE   = 1 << 18,
-    CD_DOWN     = 1 << 19
 } DeckFlags;
 
 struct Deck {
@@ -62,8 +60,8 @@ void shuffle_deck(Deck **headref, int rounds);
 void push_card(Deck **headref, Deck *card);
 void destroy_deck(Deck **headref);
 int count_deck(Deck *cards);
-void merge_sort_deck(Deck **headref);
-Deck* sorted_merge(Deck *a, Deck *b);
+void merge_sort_deck(Deck **headref, bool bysuite);
+Deck* sorted_merge(Deck *a, Deck *b, bool bysuite);
 void ft_bk_splt(Deck *source, Deck **frontref, Deck **backref);
 
 Deck* create_std_deck(void);

@@ -41,7 +41,10 @@ int main(int argc, char **argv) {
                 draw_cards(&deck, &hand, 5);
                 break;
             case 's':
-                merge_sort_deck(&hand);
+                merge_sort_deck(&hand,false);
+                break;
+            case 'a':
+                merge_sort_deck(&hand,true);
                 break;
             default:
                 break;

@@ -441,19 +441,19 @@ int count_deck(Deck *cards) {
     return (count_deck(cards->next) + 1);
 }
 
-void merge_sort_deck(Deck **headref) {
+void merge_sort_deck(Deck **headref, bool bysuite) {
     Deck *head = *headref;
     Deck *a = NULL;
     Deck *b = NULL;
 
     if(!head || !head->next) return;
     ft_bk_splt(head, &a, &b);
-    merge_sort_deck(&a);
-    merge_sort_deck(&b);
-    *headref = sorted_merge(a,b);
+    merge_sort_deck(&a,bysuite);
+    merge_sort_deck(&b,bysuite);
+    *headref = sorted_merge(a,b,bysuite);
 }
 
-Deck* sorted_merge(Deck *a, Deck *b) {
+Deck* sorted_merge(Deck *a, Deck *b, bool bysuite) {
     Deck *result = NULL;
     if(!a) {
         return b;
@@ -462,18 +462,20 @@ Deck* sorted_merge(Deck *a, Deck *b) {
     }
     int aval = get_value(a->card);
     int bval = get_value(b->card);
-    if((a->card & CD_H) == CD_H) aval += 13;
-    if((a->card & CD_S) == CD_S) aval += 26;
-    if((a->card & CD_D) == CD_D) aval += 39;
-    if((b->card & CD_H) == CD_H) bval += 13;
-    if((b->card & CD_S) == CD_S) bval += 26;
-    if((b->card & CD_D) == CD_D) bval += 39;
+    if(bysuite) {
+        if((a->card & CD_H) == CD_H) aval += 13;
+        if((a->card & CD_S) == CD_S) aval += 26;
+        if((a->card & CD_D) == CD_D) aval += 39;
+        if((b->card & CD_H) == CD_H) bval += 13;
+        if((b->card & CD_S) == CD_S) bval += 26;
+        if((b->card & CD_D) == CD_D) bval += 39;
+    }
     if(aval <= bval) {
         result = a;
-        result->next = sorted_merge(a->next, b);
+        result->next = sorted_merge(a->next, b, bysuite);
     } else {
         result = b;
-        result->next = sorted_merge(a, b->next);
+        result->next = sorted_merge(a, b->next, bysuite);
     }
     return result;
 }
