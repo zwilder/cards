@@ -71,6 +71,7 @@ int main(int argc, char **argv) {
                 break;
         }
         // Draw
+        if(!running) break;
         x = 7;
         y = 0;
         scr_clear();
