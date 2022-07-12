@@ -35,6 +35,7 @@ typedef struct Deck Deck;
  * Deck printing functions
  *************************/
 char* get_suite(int card);
+char get_suite_ch(int card);
 int get_value(int card);
 char* get_value_str(int card);
 int get_card(int value, char suite);

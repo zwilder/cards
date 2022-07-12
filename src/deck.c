@@ -63,6 +63,19 @@ char* get_suite(int card) {
     return suite;
 }
 
+char get_suite_ch(int card) {
+    if((card & CD_H) == CD_H) {
+        return 'h'; 
+    } else if((card & CD_S) == CD_S) {
+        return 's';
+    } else if((card & CD_C) == CD_C) {
+        return 'c';
+    } else if((card & CD_D) == CD_D) {
+        return 'd';
+    } 
+    return '\0';
+}
+
 int get_value(int card) {
     int value = 0;
     if((card & CD_A) == CD_A) {
@@ -210,8 +223,8 @@ void pt_card_at(int x, int y, int card) {
         scr_pt(x,y+1, "\u2551   \u2551");
         if(val == 10) {
             scr_pt(x,y, "%s\u2550%s\u2557", suite, value);
-            scr_pt(x,y+2, "\u2551%s \u2551", value);
-            scr_pt(x,y+4, "\u255A%s\u2550%s",value, suite);
+            scr_pt(x,y+2, "\u2551 %s\u2551", value);
+            scr_pt(x,y+4, "\u255A\u2550%s%s",value, suite);
         } else {
             scr_pt(x,y, "%s\u2550%s\u2550\u2557", suite,value);
             scr_pt(x,y+2, "\u2551 %s \u2551", value);
@@ -243,8 +256,8 @@ void pt_card_clr_at(int x, int y, int card) {
         scr_pt_clr(x,y+2,fg,0, "\u2551   \u2551");
         if(val == 10) {
             scr_pt_clr(x,y,fg,0,"%s\u2550%s\u2557", suite,value);
-            scr_pt_clr(x+1,y+2,fg,bg, "%s ",value);
-            scr_pt_clr(x,y+4,fg,0, "\u255A%s\u2550%s",value, suite);
+            scr_pt_clr(x+1,y+2,fg,bg, " %s",value);
+            scr_pt_clr(x,y+4,fg,0, "\u255A\u2550%s%s",value, suite);
         } else {
             scr_pt_clr(x,y,fg,0,"%s\u2550%s\u2550\u2557", suite,value);
             scr_pt_clr(x+1,y+2,fg,bg, " %s ", value);

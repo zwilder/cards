@@ -11,6 +11,7 @@ int main(int argc, char **argv) {
 
     Deck *deck = create_std_deck();
     Deck *hand = NULL;
+    Deck *flop = NULL;
     Deck *tmp = NULL;
     bool running = true;
     char input = 0;
@@ -34,11 +35,12 @@ int main(int argc, char **argv) {
                 running = false;
                 break;
             case 'r':
-                add_cards(&hand, &deck);
-                shuffle_deck(&deck, 500);
-                break;
             case 'd':
-                draw_cards(&deck, &hand, 5);
+                add_cards(&hand, &deck);
+                add_cards(&flop, &deck);
+                shuffle_deck(&deck, 500);
+                draw_cards(&deck, &hand, 4);
+                draw_card(&deck, &flop);
                 break;
             case 's':
                 merge_sort_deck(&hand,false);
@@ -69,11 +71,14 @@ int main(int argc, char **argv) {
         } else if (x == 1) {
             pt_card_back_clr_at(0,0,43);
         }
+        pt_card_clr_at(0,6,flop->card);
+        score_cribbage_hand(hand, flop);
         scr_pt(0,g_screenH - 1,"Deck Size: %d. Press q to exit, r to shuffle deck, d to draw card.", count_deck(deck));
     }
 
     scr_clear();
 
+    destroy_deck(&flop);
     destroy_deck(&deck);
     destroy_deck(&hand);
     scr_restore();

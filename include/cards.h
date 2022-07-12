@@ -14,6 +14,7 @@
 #include <math.h>
 #include <stdbool.h>
 #include <time.h>
+#include <string.h>
 
 /*********
  * Project
@@ -22,5 +23,10 @@
 #include <input.h>
 #include <mt19937.h>
 #include <deck.h>
+
+/*******
+ * Games
+ *******/
+#include <cribbage.h>
 
 #endif
