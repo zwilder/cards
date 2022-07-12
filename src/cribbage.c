@@ -213,55 +213,56 @@ CribScore* count_runs(Deck *hand, Deck *flop) {
     if(!flop) return 0;
     if(count_deck(hand) != 4) return 0;
     CribScore *result = NULL;
+    uint8_t matrix[13][5] = {{ 0 }};
+    int x,y,cur,prev,r,m,br,bm;
     int cards[5];
     cards[0] = hand->card;
     cards[1] = hand->next->card;
     cards[2] = hand->next->next->card;
     cards[3] = hand->next->next->next->card;
     cards[4] = flop->card;
-    uint8_t matrix[13][5] = {{ 0 }};
-    int x,y,cur,prev,run,mult,bestrun,bestmult;
     for(x = 0; x < 13; x++) {
         for(y = 0; y < 5; ++y) {
             if(get_value(cards[y]) == (x+1)) {
-                if(get_suite_ch(cards[y]) == 'h') matrix[x][0] += 1;
-                if(get_suite_ch(cards[y]) == 'c') matrix[x][1] += 1;
-                if(get_suite_ch(cards[y]) == 'd') matrix[x][2] += 1;
-                if(get_suite_ch(cards[y]) == 's') matrix[x][3] += 1;
+                if((cards[y] & CD_H) == CD_H) matrix[x][0] += 1;
+                if((cards[y] & CD_C) == CD_C) matrix[x][1] += 1;
+                if((cards[y] & CD_D) == CD_D) matrix[x][2] += 1;
+                if((cards[y] & CD_S) == CD_S) matrix[x][3] += 1;
             }
         }
         matrix[x][4] = matrix[x][0] + matrix[x][1] + matrix[x][2] + matrix[x][3];
     }
-    bestrun = 1;
-    bestmult = 1;
+    br = bm = r = m = 1;
     cur = 0;
     prev = matrix[0][4];
-    run = 1;
-    mult = 1;
     for(x = 1; x < 13; x++) {
         cur = matrix[x][4];
         if(cur && prev) {
-            run++;
-            if(cur > 1) mult = cur;
+            r++;
+            if(cur > 1) m = cur;
         } else {
-            if(run > bestrun) {
-                bestrun = run;
-                bestmult = mult;
+            if(r > br) {
+                br = r;
+                bm = m;
             }
-            run = 1;
-            mult = 1;
+            r = 1;
+            m = 1;
         }
         prev = cur;
     }
-    run = bestrun;
-    mult = bestmult;
-    if(run >= 3) {
-        if(mult == 1) {
-            result = create_cribscore(1, run, "a run of %d for %d", run,run);
-        } else if(mult == 2) {
-            result = create_cribscore(mult, run*mult, "a double run of %d for %d", run,run*mult);
-        } else if(mult == 3) {
-            result = create_cribscore(mult, run*mult, "a triple run of %d for %d", run,run*mult);
+    if(r > br) {
+        br = r;
+        bm = m;
+    }
+    if(br >= 3) {
+        if(bm == 1) {
+            result = create_cribscore(1, br, "a run of %d for %d", br,br);
+        } else if(bm == 2) {
+            result = create_cribscore(bm, br*bm, 
+                    "a double run of %d for %d", br,br*bm);
+        } else if(bm == 3) {
+            result = create_cribscore(bm, br*bm, 
+                    "a triple run of %d for %d", br,br*bm);
         }
     }
     return result;
@@ -313,10 +314,10 @@ CribScore* count_nobs(Deck *hand, Deck *flop) {
     int C = hand->next->next->card;
     int D = hand->next->next->next->card;
     int E = flop->card;
-    if(((A & CD_J) == CD_J) && (strcmp(get_suite(E), get_suite(A)) == 0)) i++;
-    if(((B & CD_J) == CD_J) && (strcmp(get_suite(E), get_suite(B)) == 0)) i++;
-    if(((C & CD_J) == CD_J) && (strcmp(get_suite(E), get_suite(C)) == 0)) i++;
-    if(((D & CD_J) == CD_J) && (strcmp(get_suite(E), get_suite(D)) == 0)) i++;
+    if(((A & CD_J) == CD_J) && (get_suite_ch(E) == get_suite_ch(A))) i++;
+    if(((B & CD_J) == CD_J) && (get_suite_ch(E) == get_suite_ch(B))) i++;
+    if(((C & CD_J) == CD_J) && (get_suite_ch(E) == get_suite_ch(C))) i++;
+    if(((D & CD_J) == CD_J) && (get_suite_ch(E) == get_suite_ch(D))) i++;
     if(i) {
         result = create_cribscore(1, 1, "one for his nobs!");
     }
@@ -345,39 +346,19 @@ CribScore* count_pairs(Deck *hand, Deck *flop) {
     if(C == E) i++;
     if(D == E) i++;
     if(i == 1) {
-        result = create_cribscore(i, i*2, "a pair for %d", i*2);
+        result = create_cribscore(1, 2, "pair for 2");
     } else if(i == 2) {
-        result = create_cribscore(i, i*2, "two pairs for %d", i*2);
+        result = create_cribscore(2, 4, "two pairs for 4");
     } else if(i == 3) {
-        result = create_cribscore(i, i*2, "a pair royale for %d", i*2);
+        result = create_cribscore(3, 6, "a pair royale for 6");
     } else if(i == 6) {
-        result = create_cribscore(i, i*2, "a double pair royale for %d", i*2);
+        result = create_cribscore(6, 12, "a double pair royale for 12");
     }
     return result;
 }
 
 
 CribScore* count_15s(Deck *hand, Deck *flop) {
-    /* A B C D E
-     * Possible pairs are:
-     * AB AC AD AE 
-     * BC BD BE 
-     * CD CE 
-     * DE 
-     *
-     * Possible triplets are
-     * ABC ABD ABE ACD ACE ADE
-     * BCD BCE
-     * CDE 
-     *
-     * Possible 4 are
-     * ABCD ABCE ACDE
-     * BCDE
-     *
-     * Possible 5 is
-     * ABCDE
-     *
-     * Ugly brute force counting. */
     if(!hand) return 0;
     if(!flop) return 0;
     if(count_deck(hand) != 4) return 0;
@@ -413,7 +394,7 @@ CribScore* count_15s(Deck *hand, Deck *flop) {
     if(A+B+C+D+E == 15) i++;
     
     if(i == 1) {
-        result = create_cribscore(i, i*2, "%d 15 for %d", i, i*2);
+        result = create_cribscore(1, 2, "15 for 2");
     } else if (i) {
         result = create_cribscore(i, i*2, "%d 15s for %d", i, i*2);
     }

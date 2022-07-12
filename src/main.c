@@ -75,15 +75,17 @@ int main(int argc, char **argv) {
         x = 7;
         y = 0;
         scr_clear();
-        tmp = hand;
-        while(tmp) {
-            pt_card_clr_at(x,y,tmp->card);
-            x += 6;
-            if(x >= 78) {
-                x = 7;
-                y += 6;
+        if(hand) {
+            tmp = hand;
+            while(tmp) {
+                pt_card_clr_at(x,y,tmp->card);
+                x += 6;
+                if(x >= 78) {
+                    x = 7;
+                    y += 6;
+                }
+                tmp = tmp->next;
             }
-            tmp = tmp->next;
         }
         x = count_deck(deck);
         if(x > 1) {
@@ -91,8 +93,10 @@ int main(int argc, char **argv) {
         } else if (x == 1) {
             pt_card_back_clr_at(0,0,43);
         }
-        pt_card_clr_at(0,6,flop->card);
-        score_cribbage_hand(hand, flop);
+        if(hand && flop) {
+            pt_card_clr_at(0,6,flop->card);
+            score_cribbage_hand(hand, flop);
+        }
         scr_pt(0,g_screenH - 1,"Deck Size: %d. Press q to exit, r to shuffle deck, d to draw card.", count_deck(deck));
     }
 
