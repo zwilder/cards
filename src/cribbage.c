@@ -85,26 +85,35 @@ CribPlayer* create_cribbage_player(void) {
     return player;
 }
 
-void destroy_cribbage_player(CribPlayer *player) {
-    if(player->hand) {
-        destroy_deck(&(player->hand));
-        player->hand = NULL;
+void destroy_cribbage_player(CribPlayer **player) {
+    if(!(*player)) return;
+    if((*player)->hand) {
+        destroy_deck(&(*player)->hand);
+        (*player)->hand = NULL;
     }
-    free(player);
+    free(*player);
+    *player = NULL;
 }
 
 void cribbage_init(void) {
-    if(g_computer) destroy_cribbage_player(g_computer);
+    if(g_computer) destroy_cribbage_player(&g_computer);
     g_computer = create_cribbage_player();
     //g_computer->strategy = get_cribbage_strategy();
     g_computer->strategy = 1;
-    if(g_player) destroy_cribbage_player(g_player);
+    if(g_player) destroy_cribbage_player(&g_player);
     g_player = create_cribbage_player();
     g_deck = create_std_deck();
     
     cribbage_draw();
     cribbage_loop();
 }
+
+void cribbage_cleanup(void) {
+    if(g_computer) destroy_cribbage_player(&g_computer);
+    if(g_player) destroy_cribbage_player(&g_player);
+    if(g_deck) destroy_deck(&g_deck);
+}
+
 
 void cribbage_loop(void) {
     bool running = true;
@@ -113,20 +122,144 @@ void cribbage_loop(void) {
         cribbage_update();
         cribbage_draw();
     }
+    cribbage_cleanup();
 }
 
 bool cribbage_events(void) {
     bool running = true;
-
+    int input = kb_get_char();
+    switch(input) {
+        case 'q': running = false; break;
+        default: break;
+    }
     return running;
 }
 
+/*         1         2         3         4         5         6         7         8
+  12345678901234567890123456789012345678901234567890123456789012345678901234567890
+ 1                                   ╔╔╔═══╗                                           
+ 2╔╔═══╗ ♠═K═╗ ♣═J═╗ ♥═10╗ ♥═A═╗     ║║║╔╗/║                                          
+ 3║║╔╗/║ ║   ║ ║   ║ ║   ║ ║   ║     ║║║╚║╗║                                   
+ 4║║╚║╗║ ║ K ║ ║ J ║ ║ 10║ ║ A ║     ║║║/╚╝║                                   
+ 5║║/╚╝║ ║   ║ ║   ║ ║   ║ ║   ║     ╚╚╚═══╝                                             
+ 6╚╚═══╝ ╚═K═♠ ╚═J═♣ ╚═10♥ ╚═A═♥
+ 7                                                                             
+ 8       ╔═══════════════════════════════════════╗                             
+ 9╔♥═6═╗ ║ . .¡..¡ ..... ..... ..... ..... ..... ║ 5 
+10║║   ║ ║ . ..... ..... ..... ..... ..... ..... ║    
+ 1║║ 6 ║ ║                                       ║ 
+ 2║║   ║ ║ . ..¡.. ...¡. ..... ..... ..... ..... ║ 
+ 3╚╚═6═♥ ║ . ..... ..... ..... ..... ..... ..... ║ 9
+ 4       ╚═══════════════════════════════════════╝
+ 5                        Count: 12
+ 6       ♣═Q═╗ ♥═A═╗ ♣═4═╗                            
+ 7       ║   ║ ║   ║ ║   ║           ♣═4═╗ ♣═4═╗      
+ 8       ║ Q ║ ║ A ║ ║ 4 ║           ║   ║ ║   ║  
+ 9       ║   ║ ║   ║ ║   ║           ║ 4 ║ ║ 4 ║  
+20       ╚═Q═♣ ╚═A═♥ ╚═4═♣           ║   ║ ║   ║     
+ 1                                   ╚═4═♣ ╚═4═♣    
+ 2                                   [ 1 ] [ 2 ]
+ 3zwilder: 3 15's for 6, 2 runs of 3 for 6, pair for 2 - 14 points!
+ 4computer: Pair - 2
+ *   	0	1	2	3	4	5	6	7	8	9	A	B	C	D	E	F
+U+255x	═	║	╒	╓	╔	╕	╖	╗	╘	╙	╚	╛	╜	╝	╞	╟
+*/
 void cribbage_draw(void) {
-
+    int xo = g_screenW / 2 - 40; //80x24
+    int yo = g_screenH / 2 - 12;
+    uint8_t fg = 172;
+    uint8_t bg = 238;
+    scr_clear();
+    draw_board(fg,bg,xo,yo);
+    draw_score(fg,bg,xo,yo);
+    //Deck/flop
+    pt_deck_stack_clr_at(0+xo,8+yo,43);
+    //Computer playing area
+    //Computer hand
+    //Player playing field
+    //Player hand
+    //Card select "buttons"
+    //Count text
+    //Messages
+    scr_reset();
 }
 
-void draw_board(void) {
+void draw_score(int fg, int bg, int xo, int yo) {
+    scr_set_style(ST_BOLD);
+    if(g_computer->score == 0) {
+        scr_pt_clr(9+xo,8+yo,9,bg,"\u00A1");
+        scr_pt_clr(9+xo,9+yo,9,bg,"\u00A1");
+    } else {
+        draw_peg(10+xo,8+yo,9,bg,g_computer->pegA);
+        draw_peg(10+xo,8+yo,9,bg,g_computer->pegB);
+    }
+    if(g_player->score == 0) {
+        scr_pt_clr(9+xo,11+yo,10,bg,"\u00A1");
+        scr_pt_clr(9+xo,12+yo,10,bg,"\u00A1");
+    } else {
+        draw_peg(10+xo,11+yo,10,bg,g_player->pegA);
+        draw_peg(10+xo,11+yo,10,bg,g_player->pegB);
+    }
+    scr_reset();
+    scr_pt_clr(49+xo,8+yo,9,0,"%d",g_computer->score);
+    scr_pt_clr(49+xo,11+yo,10,0,"%d",g_player->score);
+}
 
+void draw_peg(int x, int y, int fg, int bg, int sc) {
+    int bx,by,ofs;
+    if((sc > 0) && (sc < 31)) {
+        by = 0;
+        ofs = sc / 5;
+        bx = sc + ofs;
+    } else if((sc > 30) && (sc < 61)) {
+        by = 1;
+        ofs = (sc - 30) / 5;
+        bx = 66 - sc - ofs;
+    } else if((sc > 60) && (sc < 91)) {
+        by = 0;
+        ofs = (sc - 60) / 5;
+        bx = (sc - 60) + ofs;
+    } else if((sc > 90) && (sc < 121)) {
+        by = 1;
+        ofs = (sc - 90) / 5;
+        bx = 126 - sc - ofs;
+    } else {
+        by = 1;
+        bx = -1;
+    }
+    by += y;
+    bx += x;
+    scr_set_style(ST_BOLD);
+    scr_pt_clr(bx,by,fg,bg,"\u00A1");
+    scr_reset();
+}
+
+void draw_board(int fg, int bg, int xo, int yo) {
+    int x,y;
+    scr_pt_clr(7+xo,7+yo,fg,bg,"\u2554");
+    scr_pt_clr(7+xo,13+yo,fg,bg,"\u255A");
+    scr_pt_clr(47+xo,7+yo,fg,bg,"\u2557");
+    scr_pt_clr(47+xo,13+yo,fg,bg,"\u255D");
+    for(x = 8; x < 47; x++) {
+        scr_pt_clr(x+xo,7+yo,fg,bg,"\u2550");
+        for(y = 8; y < 13; y++) {
+            if(y == 10) {
+                scr_pt_clr(x+xo,y+yo,fg,bg," ");
+                continue;
+            }
+            if(x == 8 || x == 10 || x == 16 || x == 22 || x == 28 || x == 34 ||
+                    x == 40 || x == 46) {
+                scr_pt_clr(x+xo,y+yo,fg,bg," ");
+            } else {
+                scr_pt_clr(x+xo,y+yo,250,bg,".");
+            }
+        }
+        scr_pt_clr(x+xo,13+yo,fg,bg,"\u2550");
+    }
+    for(y = 8; y < 13; y++) {
+        scr_pt_clr(7+xo,y+yo,fg,bg,"\u2551");
+        scr_pt_clr(47+xo,y+yo,fg,bg,"\u2551");
+    }
 }
 
 void cribbage_update(void) {

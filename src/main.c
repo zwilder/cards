@@ -67,6 +67,9 @@ int main(int argc, char **argv) {
             case 'a':
                 merge_sort_deck(&hand,true);
                 break;
+            case 'c':
+                cribbage_init();
+                break;
             default:
                 break;
         }

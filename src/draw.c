@@ -58,7 +58,6 @@ void scr_pt_char(int x, int y, char c) {
 void scr_pt_clr_char(int x, int y, uint8_t fg, uint8_t bg, char c) {
     scr_set_clr(fg,bg);
     scr_pt_char(x,y,c);
-    scr_reset();
 }
 
 void scr_pt(int x, int y, char *fstr,...) {
@@ -76,7 +75,6 @@ void scr_pt_clr(int x, int y, uint8_t fg, uint8_t bg, char *fstr,...) {
     scr_set_curs(x,y);
     scr_set_clr(fg,bg);
     vprintf(fstr, args);
-    scr_reset();
     fflush(stdout);
     va_end(args);
 }

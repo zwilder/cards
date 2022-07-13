@@ -37,12 +37,15 @@ typedef struct {
  * cribbage.c functions
  **********************/
 CribPlayer* create_cribbage_player(void);
-void destroy_cribbage_player(CribPlayer *player);
+void destroy_cribbage_player(CribPlayer **player); 
 void cribbage_init(void);
+void cribbage_cleanup(void);
 void cribbage_loop(void);
 bool cribbage_events(void);
 void cribbage_draw(void);
-void draw_board(void);
+void draw_score(int fg, int bg, int xo, int yo);
+void draw_peg(int x, int y, int fg, int bg, int sc);
+void draw_board(int fg, int bg, int xo, int yo);
 void cribbage_update(void);
 
 CribScore* create_cribscore(int qty, int pts, char *msg,...);

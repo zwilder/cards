@@ -286,6 +286,7 @@ void pt_card_clr_at(int x, int y, int card) {
         scr_pt_clr(x+1,y+3,fg,bg, "   ");
     }
 
+    scr_reset();
     free(value);
     free(suite);
 }
@@ -346,6 +347,7 @@ void pt_deck_stack_clr_at(int x, int y, int color) {
     pt_card_back_clr_at(x,y,color);
     pt_card_back_clr_at(x+1,y,color);
     //pt_card_back_clr_at(x+2,y,color);
+    scr_reset();
 }
 
 void pt_deck_stackv_at(int x, int y) {
@@ -358,6 +360,7 @@ void pt_deck_stackv_clr_at(int x, int y, int color) {
     pt_card_back_clr_at(x,y,color);
     pt_card_back_clr_at(x,y+1,color);
     //pt_card_back_clr_at(x,y+2,color);
+    scr_reset();
 }
 
 void pt_card_spc_at(int x, int y, char c, char *suite) {
@@ -377,6 +380,7 @@ void pt_card_spc_clr_at(int x, int y, char c, char *suite, uint8_t fg, uint8_t b
     scr_pt_clr(x,y+3,fg,0, "\u2551   \u2551");
     scr_pt_clr(x+1,y+3,fg,bg, "   ");
     scr_pt_clr(x,y+4,fg,0, "\u255A\u2550\u2550\u2550%s", suite);
+    scr_reset();
 }
 
 void pt_card_active(int x, int y) {
