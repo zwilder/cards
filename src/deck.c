@@ -404,6 +404,7 @@ Deck* create_card(int card) {
     newcard->next = NULL;
     return newcard;
 }
+
 Deck* find_card(Deck **headref, int card) {
     Deck *result = *headref;
     if(!result) return NULL;
@@ -411,6 +412,17 @@ Deck* find_card(Deck **headref, int card) {
     while(result->card != card) {
         result = result->next;
         if(!result) break;
+    }
+    return result;
+}
+
+Deck* get_card_at(Deck **headref, int card) {
+    Deck *result = *headref;
+    int i;
+    int count = count_deck(result);
+    for(i = 0; i < count; i++) {
+        if(i == card) break;
+        result = result->next;
     }
     return result;
 }

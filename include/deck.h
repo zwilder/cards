@@ -75,6 +75,7 @@ void pt_card_active(int x, int y);
  ****************/
 Deck* create_card(int card);
 Deck* find_card(Deck **headref, int card);
+Deck* get_card_at(Deck **headref, int n);
 Deck* remove_card(Deck **headref, Deck *card);
 void shuffle_deck(Deck **headref, int rounds);
 void push_card(Deck **headref, Deck *card);

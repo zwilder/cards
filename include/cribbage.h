@@ -80,14 +80,19 @@ void cribbage_loop(void);
 void cribbage_change_state(int st);
 bool cribbage_events(void);
 void cribbage_draw(void);
-void draw_score(int fg, int bg, int xo, int yo);
-void draw_peg(int x, int y, int fg, int bg, int sc);
-void draw_board(int fg, int bg, int xo, int yo);
+void cribbage_draw_cards(int fg,int bg,int xo,int yo);
+void cribbage_draw_buttons(int xo,int yo);
+void cribbage_draw_score(int fg, int bg, int xo, int yo);
+void cribbage_draw_peg(int x, int y, int fg, int bg, int sc);
+void cribbage_draw_board(int fg, int bg, int xo, int yo);
 void cribbage_update(void);
+void cribbage_discard_events(void);
 void new_cribbage_round(void);
 
 Button* create_button(char ch, int num); 
 void toggle_button(int btn);
+int count_selected_buttons(void);
+Deck* get_card_at_button(int btn);
 
 CribPlayer* create_cribbage_player(void);
 void destroy_cribbage_player(CribPlayer **player); 
