@@ -463,6 +463,20 @@ void push_card(Deck **headref, Deck *card) {
     *headref = card;
 }
 
+void push_card_back(Deck **headref, Deck *card) {
+    if(!card) return;
+    if(!(*headref)) {
+        *headref = card;
+        return;
+    }
+    Deck *tmp = *headref;
+    while(tmp->next) {
+        tmp = tmp->next;
+    }
+    card->next = NULL;
+    tmp->next = card;
+}
+
 void destroy_deck(Deck **headref) {
     Deck *tmp = *headref;
     while(*headref) {

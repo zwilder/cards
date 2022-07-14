@@ -33,20 +33,64 @@ typedef struct {
     uint8_t pts;
     char *msg;
 } CribScore;
+
+typedef struct {
+    char ch;
+    bool active;
+    bool selected;
+    int num;
+    int x;
+    int y;
+} Button;
+
+typedef struct {
+    CribPlayer *computer;
+    CribPlayer *player;
+
+    Deck *deck; // Standard 52 card deck
+    Deck *ctable; // Cards in front of the cpu
+    Deck *ptable; // Cards in front of the player
+    Deck *crib; // Cards in the crib
+
+    int flags;
+    Button **btns;
+
+} Cribbage;
+    
+typedef enum {
+    CRIB_STNONE     = 1 << 0,
+    CRIB_STCUT      = 1 << 1,
+    CRIB_STDISCARD  = 1 << 2,
+    CRIB_STSHOW     = 1 << 3,
+    CRIB_PCRIB      = 1 << 4,
+    CRIB_CCRIB      = 1 << 5,
+    CRIB_PTURN      = 1 << 6,
+    CRIB_CTURN      = 1 << 7,
+    CRIB_EASY       = 1 << 8,
+    CRIB_STD        = 1 << 9,
+    CRIB_PRO        = 1 <<10
+} CribFlags;
+    
 /**********************
  * cribbage.c functions
  **********************/
-CribPlayer* create_cribbage_player(void);
-void destroy_cribbage_player(CribPlayer **player); 
 void cribbage_init(void);
 void cribbage_cleanup(void);
 void cribbage_loop(void);
+void cribbage_change_state(int st);
 bool cribbage_events(void);
 void cribbage_draw(void);
 void draw_score(int fg, int bg, int xo, int yo);
 void draw_peg(int x, int y, int fg, int bg, int sc);
 void draw_board(int fg, int bg, int xo, int yo);
 void cribbage_update(void);
+void new_cribbage_round(void);
+
+Button* create_button(char ch, int num); 
+void toggle_button(int btn);
+
+CribPlayer* create_cribbage_player(void);
+void destroy_cribbage_player(CribPlayer **player); 
 
 CribScore* create_cribscore(int qty, int pts, char *msg,...);
 void destroy_cribscore(CribScore *score);

@@ -1,4 +1,4 @@
-CC = gcc
+CC = gcc -std=c11
 
 CFLAGS = -lm -I./include/
 

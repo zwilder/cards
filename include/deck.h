@@ -78,6 +78,7 @@ Deck* find_card(Deck **headref, int card);
 Deck* remove_card(Deck **headref, Deck *card);
 void shuffle_deck(Deck **headref, int rounds);
 void push_card(Deck **headref, Deck *card);
+void push_card_back(Deck **headref, Deck *card);
 void destroy_deck(Deck **headref);
 int count_deck(Deck *cards);
 void merge_sort_deck(Deck **headref, bool bysuite);
