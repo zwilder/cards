@@ -17,40 +17,14 @@
 * You should have received a copy of the GNU General Public License
 * along with Cards.  If not, see <http://www.gnu.org/licenses/>.
 */
-#ifndef CARDS_H
-#define CARDS_H
+#ifndef CRIBBAGE_DRAW_H
+#define CRIBBAGE_DRAW_H
 
-/********
- * System
- ********/
-#include <stdio.h>
-#include <stdlib.h>
-#include <termios.h>
-#include <sys/ioctl.h>
-#include <unistd.h> 
-#include <stdarg.h>
-#include <stdint.h>
-#include <math.h>
-#include <stdbool.h>
-#include <time.h>
-#include <string.h>
-
-/*********
- * Project
- *********/
-#include <draw.h>
-#include <flags.h>
-#include <input.h>
-#include <mt19937.h>
-#include <deck.h>
-#include <button.h>
-
-/*******
- * Games
- *******/
-#include <cribbage.h>
-#include <cribbage_events.h>
-#include <cribbage_update.h>
-#include <cribbage_draw.h>
+void cribbage_draw(void);
+void cribbage_draw_cards(int fg,int bg,int xo,int yo);
+void cribbage_draw_buttons(int xo,int yo);
+void cribbage_draw_score(int fg, int bg, int xo, int yo);
+void cribbage_draw_peg(int x, int y, int fg, int bg, int sc);
+void cribbage_draw_board(int fg, int bg, int xo, int yo);
 
 #endif

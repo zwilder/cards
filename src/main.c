@@ -19,8 +19,14 @@
 */
 #include <cards.h>
 
-void draw_temp(Deck *deck) {
-
+void move_card_temp(Deck **deckto,Deck **deckfrom, Deck* card) {
+    Deck *tmp = *deckfrom;
+    while(tmp && tmp != card) {
+        tmp = tmp->next;
+    }
+    if(!tmp) return;
+    tmp = remove_card(deckfrom, card);
+    push_card_back(deckto, tmp);
 }
 
 int main(int argc, char **argv) {
@@ -67,6 +73,9 @@ int main(int argc, char **argv) {
             case 'a':
                 merge_sort_deck(&hand,true);
                 break;
+            case 'p':
+                move_card_to_back(&flop, &hand, hand); 
+                break;
             case 'c':
                 cribbage_init();
                 break;
@@ -97,8 +106,10 @@ int main(int argc, char **argv) {
             pt_card_back_clr_at(0,0,43);
         }
         if(hand && flop) {
-            pt_card_clr_at(0,6,flop->card);
             score_cribbage_hand(hand, flop);
+        }
+        if(flop) {
+            pt_card_clr_at(0,6,flop->card);
         }
         scr_pt(0,g_screenH - 1,"Deck Size: %d. Press q to exit, r to shuffle deck, d to draw card.", count_deck(deck));
     }

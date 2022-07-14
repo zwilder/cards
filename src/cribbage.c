@@ -19,153 +19,55 @@
 */
 #include <cards.h>
 
-/*
- * 
-        Box drawing reference
-     	0	1	2	3	4	5	6	7	8	9	A	B	C	D	E	F
-U+250x	─	━	│	┃	┄	┅	┆	┇	┈	┉	┊	┋	┌	┍	┎	┏
-
-U+251x	┐	┑	┒	┓	└	┕	┖	┗	┘	┙	┚	┛	├	┝	┞	┟
-
-U+252x	┠	┡	┢	┣	┤	┥	┦	┧	┨	┩	┪	┫	┬	┭	┮	┯
-
-U+253x	┰	┱	┲	┳	┴	┵	┶	┷	┸	┹	┺	┻	┼	┽	┾	┿
-
-U+254x	╀	╁	╂	╃	╄	╅	╆	╇	╈	╉	╊	╋	╌	╍	╎	╏
-
-U+255x	═	║	╒	╓	╔	╕	╖	╗	╘	╙	╚	╛	╜	╝	╞	╟
-
-U+256x	╠	╡	╢	╣	╤	╥	╦	╧	╨	╩	╪	╫	╬	╭	╮	╯
-
-U+257x	╰	╱	╲	╳	╴	╵	╶	╷	╸	╹	╺	╻	╼	╽	╾	╿
-
-        0	1	2	3	4	5	6	7	8	9	A	B	C	D	E	F
-U+258x	▀	▁	▂	▃	▄	▅	▆	▇	█	▉	▊	▋	▌	▍	▎	▏
-
-U+259x	▐	░	▒	▓	▔	▕	▖	▗	▘	▙	▚	▛	▜	▝	▞	▟
- */
-/*         1         2         3         4         5         6         7         8
-  12345678901234567890123456789012345678901234567890123456789012345678901234567890
- 1                                                ╔╔╔═══╗                                           
- 2             ╔╔═══╗ ♠═K═╗ ♣═J═╗ ♥═10╗ ♥═A═╗     ║║║╔╗/║                                          
- 3             ║║╔╗/║ ║   ║ ║   ║ ║   ║ ║   ║     ║║║╚║╗║                                   
- 4             ║║╚║╗║ ║ K ║ ║ J ║ ║ 10║ ║ A ║     ║║║/╚╝║                                   
- 5             ║║/╚╝║ ║   ║ ║   ║ ║   ║ ║   ║     ╚╚╚═══╝                                             
- 6             ╚╚═══╝ ╚═K═♠ ╚═J═♣ ╚═10♥ ╚═A═♥
- 7                                                                                          
- 8                    ╔═══════════════════════════════════════╗                             
- 9             ╔♥═6═╗ ║ . .¡..¡ ..... ..... ..... ..... ..... ║ 5 
-10             ║║   ║ ║ . ..... ..... ..... ..... ..... ..... ║    
- 1             ║║ 6 ║ ║                                       ║ 
- 2             ║║   ║ ║ . ..¡.. ...¡. ..... ..... ..... ..... ║ 
- 3             ╚╚═6═♥ ║ . ..... ..... ..... ..... ..... ..... ║ 9
- 4                    ╚═══════════════════════════════════════╝
- 5                                     Count: 12
- 6                    ♣═Q═╗ ♥═A═╗ ♣═4═╗                            
- 7                    ║   ║ ║   ║ ║   ║           ♣═4═╗ ♣═4═╗      
- 8                    ║ Q ║ ║ A ║ ║ 4 ║           ║   ║ ║   ║  
- 9                    ║   ║ ║   ║ ║   ║           ║ 4 ║ ║ 4 ║  
-20                    ╚═Q═♣ ╚═A═♥ ╚═4═♣           ║   ║ ║   ║     
- 1                                                ╚═4═♣ ╚═4═♣    
- 2                                                [ a ] [ s ]
- 3zwilder: 3 15's for 6, 2 runs of 3 for 6, pair for 2 - 14 points!
- 4computer: Pair - 2
- *   	0	1	2	3	4	5	6	7	8	9	A	B	C	D	E	F
-U+255x	═	║	╒	╓	╔	╕	╖	╗	╘	╙	╚	╛	╜	╝	╞	╟
-*/
-Cribbage *g_game = NULL;
+Cribbage *g_cribbage = NULL;
 
 void cribbage_init(void) {
-    if(g_game) cribbage_cleanup();
-    g_game = malloc(sizeof(Cribbage));
-    g_game->computer = create_cribbage_player();
-    g_game->computer->strategy = 1;
-    g_game->player = create_cribbage_player();
-    g_game->deck = create_std_deck();
-    g_game->flags = CRIB_STNONE;
-    g_game->ctable = NULL;
-    g_game->ptable = NULL;
-    g_game->crib = NULL;
+    if(g_cribbage) cribbage_cleanup();
+    g_cribbage = malloc(sizeof(Cribbage));
+    g_cribbage->computer = create_cribbage_player();
+    g_cribbage->computer->strategy = 1;
+    g_cribbage->player = create_cribbage_player();
+    g_cribbage->deck = create_std_deck();
+    g_cribbage->flags = CRIB_STNONE;
+    g_cribbage->ctable = NULL;
+    g_cribbage->ptable = NULL;
+    g_cribbage->crib = NULL;
 
-    g_game->btns = malloc(6 * sizeof(Button));
-    g_game->btns[0] = create_button('h',0);
-    g_game->btns[1] = create_button('g',1);
-    g_game->btns[2] = create_button('f',2);
-    g_game->btns[3] = create_button('d',3);
-    g_game->btns[4] = create_button('s',4);
-    g_game->btns[5] = create_button('a',5);
+    g_cribbage->btns = malloc(6 * sizeof(Button));
+    g_cribbage->btns[0] = create_button('h',0);
+    g_cribbage->btns[1] = create_button('g',1);
+    g_cribbage->btns[2] = create_button('f',2);
+    g_cribbage->btns[3] = create_button('d',3);
+    g_cribbage->btns[4] = create_button('s',4);
+    g_cribbage->btns[5] = create_button('a',5);
+
+    g_cribbage->deckcolor = 31; //Eventually there will be an option for this.
     
+    //g_cribbage->msg = malloc(81 * sizeof(char));
+    //g_cribbage->msg[0] = '\0';
     cribbage_draw();
     cribbage_loop();
 }
 
-Button* create_button(char ch, int num) {
-    Button *btn = malloc(sizeof(Button));
-    btn->ch = ch;
-    btn->active = false;
-    btn->selected = false;
-    btn->x = 0;
-    btn->y = 0;
-    btn->num = num;
-    return btn;
-}
-
-void toggle_button(int btn) {
-    if(!g_game->btns[btn]->active) return;
-    g_game->btns[btn]->selected = !(g_game->btns[btn]->selected);
-}
-
-void reset_buttons(void) {
-    int i;
-    for(i = 0; i < 6; i++) {
-        g_game->btns[i]->selected = false;
-    }
-}
-
-void select_buttons(void) {
-    if(check_flag(g_game->flags, CRIB_STDISCARD)) {
-        cribbage_discard_events();
-    }
-    reset_buttons();
-}
-
-int count_selected_buttons(void) {
-    int i;
-    int count = 0;
-    for(i = 0; i < 6; i++) {
-        if(g_game->btns[i]->selected) count++;
-    }
-    return count;
-}
-
-Deck* get_card_at_button(int btn) {
-    Deck *card = g_game->player->hand;
-    int i;
-    int count = count_deck(card);
-    for(i = 0; i < count; i++) {
-        if(i == btn) break;
-        card = card->next;
-    }
-    return card;
-}
-
 void cribbage_cleanup(void) {
-    if(!g_game) return;
+    if(!g_cribbage) return;
     int i;
     for(i = 0; i < 6; i++) {
-        free(g_game->btns[i]);
-        g_game->btns[i] = NULL;
+        free(g_cribbage->btns[i]);
+        g_cribbage->btns[i] = NULL;
     }
-    free(g_game->btns);
-    g_game->btns = NULL;
-    destroy_cribbage_player(&g_game->player);
-    destroy_cribbage_player(&g_game->computer);
-    destroy_deck(&g_game->deck);
-    destroy_deck(&g_game->ctable);
-    destroy_deck(&g_game->ptable);
-    destroy_deck(&g_game->crib);
-    free(g_game);
-    g_game = NULL;
+    free(g_cribbage->btns);
+    g_cribbage->btns = NULL;
+    destroy_cribbage_player(&g_cribbage->player);
+    destroy_cribbage_player(&g_cribbage->computer);
+    destroy_deck(&g_cribbage->deck);
+    destroy_deck(&g_cribbage->ctable);
+    destroy_deck(&g_cribbage->ptable);
+    destroy_deck(&g_cribbage->crib);
+    //free(g_cribbage->msg);
+    //g_cribbage->msg = NULL;
+    free(g_cribbage);
+    g_cribbage = NULL;
 }
 
 void cribbage_loop(void) {
@@ -180,8 +82,8 @@ void cribbage_loop(void) {
 }
 
 void cribbage_change_state(int st) {
-    if(!g_game) return;
-    int fl = g_game->flags;
+    if(!g_cribbage) return;
+    int fl = g_cribbage->flags;
     remove_flag(&fl, CRIB_STNONE);
     remove_flag(&fl, CRIB_STCUT);
     remove_flag(&fl, CRIB_STDISCARD);
@@ -189,274 +91,7 @@ void cribbage_change_state(int st) {
     remove_flag(&fl, CRIB_PTURN);
     remove_flag(&fl, CRIB_CTURN);
     engage_flag(&fl, st);
-    g_game->flags = fl;
-}
-
-bool cribbage_events(void) {
-    bool running = true;
-    int input = kb_get_char();
-    switch(input) {
-        case 'q': running = false; break;
-        case '1':
-        case 'a': toggle_button(5); break;
-        case '2':
-        case 's': toggle_button(4); break;
-        case '3':
-        case 'd': toggle_button(3); break;
-        case '4':
-        case 'f': toggle_button(2); break;
-        case '5':
-        case 'g': toggle_button(1); break;
-        case '6':
-        case 'h': toggle_button(0); break;
-        case 'n': new_cribbage_round(); break;
-        case 'S': merge_sort_deck(&g_game->player->hand,true); break; 
-        case 'A': merge_sort_deck(&g_game->player->hand,false); break; 
-        case 10: select_buttons(); break;
-        default: break;
-    }
-    return running;
-}
-
-void new_cribbage_round(void) {
-    add_cards(&g_game->ctable, &g_game->deck);
-    add_cards(&g_game->ptable, &g_game->deck);
-    add_cards(&g_game->crib, &g_game->deck);
-    add_cards(&g_game->computer->hand, &g_game->deck);
-    add_cards(&g_game->player->hand, &g_game->deck);
-    draw_cards(&g_game->deck, &g_game->computer->hand, 6);
-    draw_cards(&g_game->deck, &g_game->player->hand, 6);
-    cribbage_change_state(CRIB_STDISCARD);
-}
-
-void cribbage_draw(void) {
-    int xo = g_screenW / 2 - 25; //80x24
-    int yo = g_screenH / 2 - 12;
-    uint8_t fg = 172;
-    uint8_t bg = 238;
-    scr_clear();
-    cribbage_draw_board(fg,bg,xo,yo);
-    cribbage_draw_score(fg,bg,xo,yo);
-    cribbage_draw_cards(fg,bg,xo,yo);
-    cribbage_draw_buttons(xo,yo);
-    //Count text at 14,14
-    //Messages
-    xo -= 15;
-    if(check_flag(g_game->flags, CRIB_STDISCARD)) {
-        scr_pt(xo,23+yo, "> Choose cards for the crib.");
-    } else if(check_flag(g_game->flags,CRIB_PTURN)) {
-        scr_pt(xo,23+yo, "> Choose a card to play.");
-    }
-    scr_reset();
-}
-
-void cribbage_draw_buttons(int xo, int yo) {
-    int x;
-    for(x = 0; x < 6; x++) {
-        if(g_game->btns[x]->active) {
-            if(g_game->btns[x]->selected) {
-                scr_pt_clr(g_game->btns[x]->x+xo, g_game->btns[x]->y+yo,
-                        237,255,
-                        "[ %c ]", g_game->btns[x]->ch);
-                scr_reset();
-            } else {
-                scr_pt(g_game->btns[x]->x+xo, g_game->btns[x]->y+yo,
-                        "[ %c ]", g_game->btns[x]->ch);
-            }
-        }
-    }
-    
-}
-
-void cribbage_draw_cards(int fg,int bg,int xo,int yo) {
-    int x,y,btn;
-    Deck *tmp = NULL;
-    if(g_game->deck) {
-        pt_deck_stack_clr_at(0+xo,8+yo,43);
-        if(check_flag(g_game->flags, CRIB_CTURN) ||
-                check_flag(g_game->flags, CRIB_PTURN) ||
-                check_flag(g_game->flags, CRIB_STSHOW)) {
-            pt_card_clr_at(1+xo,8+yo,g_game->deck->card);
-        }
-    }
-    if(g_game->crib) {
-        if(check_flag(g_game->flags, CRIB_PCRIB)) {
-            pt_deck_stack_clr_at(0+xo,16+yo,43);
-        } else if(check_flag(g_game->flags, CRIB_CCRIB)) {
-            pt_deck_stack_clr_at(0+xo,0+yo,43);
-        }
-    }
-    if(g_game->ctable) {
-        tmp = g_game->ctable;
-        x = 7;
-        y = 1;
-        while(tmp) {
-            pt_card_clr_at(x+xo,y+yo,tmp->card);
-            x += 6;
-            tmp = tmp->next;
-        }
-    }
-    if(g_game->computer->hand) {
-        tmp = g_game->computer->hand;
-        x = 35;
-        y = 0;
-        while(tmp) {
-            pt_card_back_clr_at(x+xo,y+yo,43);
-            x++;
-            tmp = tmp->next;
-        }
-    }
-    if(g_game->ptable) {
-        tmp = g_game->ptable;
-        x = 7;
-        y = 15;
-        while(tmp) {
-            pt_card_clr_at(x+xo,y+yo,tmp->card);
-            x += 6;
-            tmp = tmp->next;
-        }
-    }
-    if(g_game->player->hand) {
-        tmp = g_game->player->hand;
-        x = 41;
-        y = 16;
-        btn = 0;
-        while(tmp) {
-            pt_card_clr_at(x+xo,y+yo,tmp->card);
-            //scr_pt(x+xo,y+yo+5,"[ %d ]",btn);
-            g_game->btns[btn]->active = true;
-            g_game->btns[btn]->x = x;
-            g_game->btns[btn]->y = y+5;
-            x -= 6;
-            tmp = tmp->next;
-            btn++;
-        }
-    }
-}
-
-void cribbage_draw_score(int fg, int bg, int xo, int yo) {
-    scr_set_style(ST_BOLD);
-    if(g_game->computer->score == 0) {
-        scr_pt_clr(9+xo,8+yo,9,bg,"\u00A1");
-        scr_pt_clr(9+xo,9+yo,9,bg,"\u00A1");
-    } else {
-        cribbage_draw_peg(10+xo,8+yo,9,bg,g_game->computer->pegA);
-        cribbage_draw_peg(10+xo,8+yo,9,bg,g_game->computer->pegB);
-    }
-    if(g_game->player->score == 0) {
-        scr_pt_clr(9+xo,11+yo,10,bg,"\u00A1");
-        scr_pt_clr(9+xo,12+yo,10,bg,"\u00A1");
-    } else {
-        cribbage_draw_peg(10+xo,11+yo,10,bg,g_game->player->pegA);
-        cribbage_draw_peg(10+xo,11+yo,10,bg,g_game->player->pegB);
-    }
-    scr_reset();
-    scr_pt_clr(49+xo,8+yo,9,0,"%d",g_game->computer->score);
-    scr_pt_clr(49+xo,11+yo,10,0,"%d",g_game->player->score);
-}
-
-void cribbage_draw_peg(int x, int y, int fg, int bg, int sc) {
-    int bx,by,ofs;
-    if((sc > 0) && (sc < 31)) {
-        by = 0;
-        ofs = sc / 5;
-        bx = sc + ofs;
-    } else if((sc > 30) && (sc < 61)) {
-        by = 1;
-        ofs = (sc - 30) / 5;
-        bx = 66 - sc - ofs;
-    } else if((sc > 60) && (sc < 91)) {
-        by = 0;
-        ofs = (sc - 60) / 5;
-        bx = (sc - 60) + ofs;
-    } else if((sc > 90) && (sc < 121)) {
-        by = 1;
-        ofs = (sc - 90) / 5;
-        bx = 126 - sc - ofs;
-    } else {
-        by = 1;
-        bx = -1;
-    }
-    by += y;
-    bx += x;
-    scr_set_style(ST_BOLD);
-    scr_pt_clr(bx,by,fg,bg,"\u00A1");
-    scr_reset();
-}
-
-void cribbage_draw_board(int fg, int bg, int xo, int yo) {
-    int x,y;
-    scr_pt_clr(7+xo,7+yo,fg,bg,"\u2554");
-    scr_pt_clr(7+xo,13+yo,fg,bg,"\u255A");
-    scr_pt_clr(47+xo,7+yo,fg,bg,"\u2557");
-    scr_pt_clr(47+xo,13+yo,fg,bg,"\u255D");
-    for(x = 8; x < 47; x++) {
-        scr_pt_clr(x+xo,7+yo,fg,bg,"\u2550");
-        for(y = 8; y < 13; y++) {
-            if(y == 10) {
-                scr_pt_clr(x+xo,y+yo,fg,bg," ");
-                continue;
-            }
-            if(x == 8 || x == 10 || x == 16 || x == 22 || x == 28 || x == 34 ||
-                    x == 40 || x == 46) {
-                scr_pt_clr(x+xo,y+yo,fg,bg," ");
-            } else {
-                scr_pt_clr(x+xo,y+yo,250,bg,".");
-            }
-        }
-        scr_pt_clr(x+xo,13+yo,fg,bg,"\u2550");
-    }
-    for(y = 8; y < 13; y++) {
-        scr_pt_clr(7+xo,y+yo,fg,bg,"\u2551");
-        scr_pt_clr(47+xo,y+yo,fg,bg,"\u2551");
-    }
-}
-
-void cribbage_update(void) {
-    int i;
-    for(i = 0; i < 6; ++i) {
-        g_game->btns[i]->active = false;
-    }
-
-}
-
-void cribbage_discard_events(void) {
-    int i, cA, cB;
-    int count = count_selected_buttons();
-    Deck *cardA = NULL;
-    Deck *cardB = NULL;
-    if(count == 2) {
-        // Move the two cards to the crib
-        for(i = 0; i < 6; i++) {
-            if(g_game->btns[i]->selected) {
-                if(!cardA) {
-                    cardA = get_card_at_button(i);
-                } else {
-                    cardB = get_card_at_button(i);
-                }
-            }
-        }
-        cardA = remove_card(&g_game->player->hand, cardA);
-        cardB = remove_card(&g_game->player->hand, cardB);
-        push_card(&g_game->crib, cardA);
-        push_card(&g_game->crib, cardB);
-        // Have the computer move two cards (random for now)
-        cA = mt_rand(0,5);
-        cardA = get_card_at(&g_game->computer->hand,cA);
-        cB = mt_rand(0,4);
-        cardB = get_card_at(&g_game->computer->hand,cB);
-        push_card(&g_game->crib, 
-                remove_card(&g_game->computer->hand, cardA));
-        push_card(&g_game->crib, 
-                remove_card(&g_game->computer->hand, cardB));
-
-        // change the state to PTURN/CTURN
-        cribbage_change_state(CRIB_PTURN);
-        engage_flag(&g_game->flags, CRIB_PCRIB);
-    } else {
-        //Message to "Only select two, please."
-        scr_pt(g_screenW/2 - 40, g_screenH + 12, "> Only select two, please.");
-    }
+    g_cribbage->flags = fl;
 }
 
 int get_cribbage_card_value(int card) {
@@ -703,7 +338,6 @@ CribScore* count_pairs(Deck *hand, Deck *flop) {
     }
     return result;
 }
-
 
 CribScore* count_15s(Deck *hand, Deck *flop) {
     if(!hand) return 0;

@@ -427,6 +427,29 @@ Deck* get_card_at(Deck **headref, int card) {
     return result;
 }
 
+void move_card_to_back(Deck **deckto,Deck **deckfrom, Deck* card) {
+    Deck *tmp = *deckfrom;
+    while(tmp && tmp != card) {
+        tmp = tmp->next;
+    }
+    if(!tmp) return;
+    tmp = remove_card(deckfrom, card);
+    push_card_back(deckto, tmp);
+}
+
+void move_card_to(Deck **deckto,Deck **deckfrom, Deck* card) {
+    Deck *tmp = *deckfrom;
+    while(tmp && tmp != card) {
+        tmp = tmp->next;
+    }
+    if(!tmp) return;
+    /* I **could** move the card to the "to" deck anyway, if the card exists...
+     * But then I would likely end up with multiple references to the same card,
+     * and then get some crazy error when freeing up the memory */
+    tmp = remove_card(deckfrom, card);
+    push_card(deckto, tmp);
+}
+
 Deck* remove_card(Deck **headref, Deck *card) {
     Deck *result = *headref;
     Deck *prev = NULL;
@@ -437,7 +460,7 @@ Deck* remove_card(Deck **headref, Deck *card) {
         result->next = NULL;
         return result;
     }
-    while(result != card) {
+    while(result != card && result) {
         prev = result;
         result = result->next;
     }

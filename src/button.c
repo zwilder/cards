@@ -17,40 +17,16 @@
 * You should have received a copy of the GNU General Public License
 * along with Cards.  If not, see <http://www.gnu.org/licenses/>.
 */
-#ifndef CARDS_H
-#define CARDS_H
+#include <cards.h>
 
-/********
- * System
- ********/
-#include <stdio.h>
-#include <stdlib.h>
-#include <termios.h>
-#include <sys/ioctl.h>
-#include <unistd.h> 
-#include <stdarg.h>
-#include <stdint.h>
-#include <math.h>
-#include <stdbool.h>
-#include <time.h>
-#include <string.h>
+Button* create_button(char ch, int num) {
+    Button *btn = malloc(sizeof(Button));
+    btn->ch = ch;
+    btn->active = false;
+    btn->selected = false;
+    btn->x = 0;
+    btn->y = 0;
+    btn->num = num;
+    return btn;
+}
 
-/*********
- * Project
- *********/
-#include <draw.h>
-#include <flags.h>
-#include <input.h>
-#include <mt19937.h>
-#include <deck.h>
-#include <button.h>
-
-/*******
- * Games
- *******/
-#include <cribbage.h>
-#include <cribbage_events.h>
-#include <cribbage_update.h>
-#include <cribbage_draw.h>
-
-#endif

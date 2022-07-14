@@ -77,6 +77,8 @@ Deck* create_card(int card);
 Deck* find_card(Deck **headref, int card);
 Deck* get_card_at(Deck **headref, int n);
 Deck* remove_card(Deck **headref, Deck *card);
+void move_card_to_back(Deck **todeck, Deck **fromdeck, Deck *card);
+void move_card_to(Deck **todeck, Deck **fromdeck, Deck *card);
 void shuffle_deck(Deck **headref, int rounds);
 void push_card(Deck **headref, Deck *card);
 void push_card_back(Deck **headref, Deck *card);
