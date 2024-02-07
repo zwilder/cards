@@ -1,6 +1,6 @@
 /*
 * Cards
-* Copyright (C) Zach Wilder 2022
+* Copyright (C) Zach Wilder 2022-2024
 * 
 * This file is a part of Cards
 *
@@ -42,6 +42,7 @@ typedef enum {
     CD_S        = 1 << 15,
     CD_C        = 1 << 16,
     CD_D        = 1 << 17,
+    CD_UP       = 1 << 18
 } DeckFlags;
 
 struct Deck {
@@ -92,5 +93,22 @@ Deck* create_std_deck(void);
 void draw_card(Deck **from, Deck **to);
 void draw_cards(Deck **from, Deck **to, int n);
 void add_cards(Deck **from, Deck **to); 
+
+/*******************
+ * Card Interactions
+ *******************/
+bool card_hearts(int card);
+bool card_diamonds(int card);
+bool card_spades(int card);
+bool card_clubs(int card);
+bool card_black(int card);
+bool card_red(int card);
+bool card_alt_color(int a, int b);
+bool card_same_suit(int a, int b);
+bool card_in_asc_sequence(int a, int b);
+bool card_in_dec_sequence(int a, int b);
+void turn_deck_facedown(Deck *deck);
+bool card_faceup(int card);
+bool card_facedown(int card);
 
 #endif

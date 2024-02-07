@@ -38,7 +38,7 @@ void kb_restore(void) {
 }
 
 char kb_get_char(void) {
-    char c;
+    char c = '\0';
     read(STDIN_FILENO,&c,1);
     return c;
 }

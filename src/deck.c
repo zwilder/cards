@@ -621,3 +621,66 @@ void add_cards(Deck **from, Deck **to) {
         draw_card(from, to);
     }
 }
+
+/*******************
+ * Card Interactions
+ *******************/
+bool card_hearts(int card) {
+    return ((card & CD_H) == CD_H);
+}
+
+bool card_diamonds(int card) {
+    return ((card & CD_D) == CD_D);
+}
+
+bool card_spades(int card) {
+    return ((card & CD_S) == CD_S);
+}
+
+bool card_clubs(int card) {
+    return ((card & CD_C) == CD_C);
+}
+
+bool card_black(int card) {
+    return (card_spades(card) || card_clubs(card));
+}
+
+bool card_red(int card) {
+    return (card_hearts(card) || card_diamonds(card));
+}
+
+bool card_alt_color(int a, int b) {
+    // Haha, clever trick here
+    return (card_black(a) != card_black(b));
+}
+
+bool card_same_suit(int a, int b) {
+    return (get_suite_ch(a) == get_suite_ch(b));
+}
+
+bool card_in_asc_sequence(int a, int b) {
+    // Is the value of card 'a' exactly one higher than card 'b'?
+    return (get_value(a) == get_value(b) + 1);
+}
+
+bool card_in_dec_sequence(int a, int b) {
+    // Is the value of card 'a' exactly one lower than card 'b'?
+    return (get_value(a) == get_value(b) - 1);
+}
+
+void turn_deck_facedown(Deck *deck) {
+    if(!deck) return;
+    Deck *tmp = deck;
+    while(tmp) {
+        remove_flag(&(tmp->card), CD_UP);
+        tmp = tmp->next;
+    }
+}
+
+bool card_faceup(int card) {
+    return ((card & CD_UP) == CD_UP);
+}
+
+bool card_facedown(int card) {
+    return (false == card_faceup(card));
+}

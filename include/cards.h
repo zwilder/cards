@@ -52,5 +52,6 @@
 #include <cribbage_events.h>
 #include <cribbage_update.h>
 #include <cribbage_draw.h>
+#include <klondike.h>
 
 #endif

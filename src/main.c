@@ -79,6 +79,9 @@ int main(int argc, char **argv) {
             case 'c':
                 cribbage_init();
                 break;
+            case 'k':
+                klondike_init();
+                break;
             default:
                 break;
         }
@@ -105,9 +108,11 @@ int main(int argc, char **argv) {
         } else if (x == 1) {
             pt_card_back_clr_at(0,0,43);
         }
+        /*
         if(hand && flop) {
             score_cribbage_hand(hand, flop);
         }
+        */
         if(flop) {
             pt_card_clr_at(0,6,flop->card);
         }
