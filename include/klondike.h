@@ -41,7 +41,12 @@ void klondike_deal(void);
 void klondike_cleanup(void);
 void klondike_loop(void);
 bool klondike_events(void);
+void klondike_deactivate_btns(void);
+void klondike_toggle_btn(Button *btn);
+int klondike_count_selected_btns(void);
 void klondike_update(void);
 void klondike_draw(void);
+void klondike_draw_space(int x, int y);
+void klondike_draw_btn(Button *btn, int x, int y);
 
 #endif //KLONDIKE_H
