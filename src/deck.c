@@ -427,6 +427,15 @@ Deck* get_card_at(Deck **headref, int card) {
     return result;
 }
 
+Deck* get_last_card(Deck *headref) {
+    Deck *result = headref;
+    if(!result) return NULL;
+    while(result->next) {
+        result = result->next;
+    }
+    return result;
+}
+
 void move_card_to_back(Deck **deckto,Deck **deckfrom, Deck* card) {
     Deck *tmp = *deckfrom;
     while(tmp && tmp != card) {
@@ -501,7 +510,7 @@ void push_card(Deck **headref, Deck *card) {
 void push_card_back(Deck **headref, Deck *card) {
     if(!card) return;
     if(!(*headref)) {
-        *headref = card;
+        (*headref) = card;
         return;
     }
     Deck *tmp = *headref;
@@ -611,6 +620,27 @@ void draw_cards(Deck **from, Deck **to, int n) {
     int i = 0;
     while(i < n) {
         draw_card(from,to);
+        i++;
+    }
+}
+
+void draw_card_back(Deck **from, Deck **to) {
+    if(!(*from)) return;
+    int i = 0;
+    int n = mt_rand(0, count_deck(*from) - 1);
+    Deck *tmp = *from;
+    while(i != n) {
+        tmp = tmp->next;
+        i++;
+    }
+    push_card_back(to, remove_card(from, tmp));
+}
+
+void draw_cards_back(Deck **from, Deck **to, int n) {
+    if(!(*from)) return;
+    int i = 0;
+    while(i < n) {
+        draw_card_back(from,to);
         i++;
     }
 }

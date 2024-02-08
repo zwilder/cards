@@ -76,6 +76,7 @@ void pt_card_active(int x, int y);
  ****************/
 Deck* create_card(int card);
 Deck* find_card(Deck **headref, int card);
+Deck* get_last_card(Deck *headref);
 Deck* get_card_at(Deck **headref, int n);
 Deck* remove_card(Deck **headref, Deck *card);
 void move_card_to_back(Deck **todeck, Deck **fromdeck, Deck *card);
@@ -92,6 +93,8 @@ void ft_bk_splt(Deck *source, Deck **frontref, Deck **backref);
 Deck* create_std_deck(void);
 void draw_card(Deck **from, Deck **to);
 void draw_cards(Deck **from, Deck **to, int n);
+void draw_card_back(Deck **from, Deck **to);
+void draw_cards_back(Deck **from, Deck **to, int n);
 void add_cards(Deck **from, Deck **to); 
 
 /*******************

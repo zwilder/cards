@@ -136,6 +136,7 @@ void klondike_init(void) {
     for(i = 0; i < g_klondike->num_btns; i++) {
         g_klondike->btns[i]->active = true;
     }
+    g_klondike->msg = NULL;
 
     g_klondike->deckcolor = 31; //Eventually there will be an option for this.
     klondike_deal();
@@ -176,7 +177,19 @@ void klondike_cleanup(void) {
         g_klondike->btns[i] = NULL;
     }
     free(g_klondike->btns);
-
+    for(i = 0; i < 7; i++) {
+        destroy_deck(&(g_klondike->tableau[i]));
+        g_klondike->tableau[i] = NULL;
+    }
+    for(i = 0; i < 4; i++) {
+        destroy_deck(&(g_klondike->foundation[i]));
+        g_klondike->foundation[i] = NULL;
+    }
+    destroy_deck(&g_klondike->deck);
+    destroy_deck(&g_klondike->waste);
+    if(g_klondike->msg) {
+        free(g_klondike->msg);
+    }
     free(g_klondike);
     g_klondike = NULL;
 }
@@ -195,35 +208,11 @@ void klondike_loop(void) {
 }
 
 bool klondike_events(void) {
-    // This is such a goofy bs function right now - "make it work before making
-    // it pretty" is goin real hard right here
     int running = true;
     int input = kb_get_char();
-    // Find out if any buttons are selected, if there are exactly two then
-    // deactivate all the buttons, but if there is exactly one then keep track
-    // of which stack that represents. 
-    Button *firstbtn = NULL;
-    Button *secondbtn = NULL;
-    Deck *firsttab = NULL;
-    Deck *secondtab = NULL;
-    Deck *card = NULL;
-    int count = klondike_count_selected_btns();
-    int i = 0, j = 0, k = 0;
-    if(2 == count) {
-        //deactivate all buttons
-        klondike_deactivate_btns();
-    } else if (1 == count) {
-        //find selected button and store it
-        i = 0;
-        firstbtn = g_klondike->btns[i];
-        while(!firstbtn->selected) {
-            i++;
-            firstbtn = g_klondike->btns[i];
-        }
-    }
     switch(input) {
         case 'q': running = false; break;
-        //case 'm': klondike_toggle_btn(g_klondike->btns[12]); break;
+        case 'a': klondike_toggle_btn(g_klondike->btns[0]); break;
         case 'b': klondike_toggle_btn(g_klondike->btns[1]); break;
         case 'c': klondike_toggle_btn(g_klondike->btns[2]); break;
         case 'd': klondike_toggle_btn(g_klondike->btns[3]); break;
@@ -231,45 +220,12 @@ bool klondike_events(void) {
         case 'f': klondike_toggle_btn(g_klondike->btns[5]); break;
         case 'g': klondike_toggle_btn(g_klondike->btns[6]); break;
         case 'h': klondike_toggle_btn(g_klondike->btns[7]); break;
+        case 'i': klondike_toggle_btn(g_klondike->btns[8]); break;
+        case 'j': klondike_toggle_btn(g_klondike->btns[9]); break;
+        case 'k': klondike_toggle_btn(g_klondike->btns[10]); break;
+        case 'l': klondike_toggle_btn(g_klondike->btns[11]); break;
+        case 'm': klondike_toggle_btn(g_klondike->btns[12]); break;
         default: break;
-    }
-    // Count number of buttons that are selected, if there are exactly two at
-    // this point, then we move a card from the first selected stack to the
-    // second selected stack
-    count = klondike_count_selected_btns();
-    if((2 == count) && firstbtn) {
-        //find second button
-        i = 0;
-        secondbtn = g_klondike->btns[i];
-        if(secondbtn == firstbtn){
-            i++;
-            secondbtn = g_klondike->btns[i];
-        }
-        while(!secondbtn->selected) {
-            i++;
-            if(g_klondike->btns[i]->selected && g_klondike->btns[i] != firstbtn) {
-                secondbtn = g_klondike->btns[i];
-            }
-        }
-        klondike_deactivate_btns();
-    }
-    if(firstbtn && secondbtn) {
-        firsttab = g_klondike->tableau[firstbtn->num - 1];
-        secondtab = g_klondike->tableau[secondbtn->num - 1];
-        //Move card from one tableau to the other
-        j = count_deck(firsttab) - 1;
-        card = get_card_at(&firsttab, j);
-        move_card_to_back(&secondtab, &firsttab, card);
-        j = count_deck(firsttab) - 1;
-        if(j) {
-            card = get_card_at(&firsttab, j);
-            if(card) {
-                engage_flag(&(card->card), CD_UP);
-            }
-        }
-        
-        //void move_card_to(Deck **todeck, Deck **fromdeck, Deck *card);
-        //Deck* get_card_at(Deck **headref, int n);
     }
     return running;
 }
@@ -296,7 +252,90 @@ void klondike_toggle_btn(Button *btn) {
 }
 
 void klondike_update(void) {
+    // Count the buttons, if there are exactly two then we need to move cards
+    // we need to keep track of the tableau it responds to
+    Deck *card = NULL;
+    Button *btn = g_klondike->btns[0];
+    int btncount = klondike_count_selected_btns();
+    int i = 0;
+    if ((1 == btncount) && !g_klondike->fromref) {
+        //Only one deck selected, store that as our "from" reference
+        while(!btn->selected) {
+            i++;
+            btn = g_klondike->btns[i];
+        }
+        g_klondike->fromref = klondike_btn_to_deck(btn);
+    } else if (2 == btncount) {
+        //Exactly two buttons active, move card from "fromref" to "toref"
+        //Figure out what toref is
+        while((!btn->selected) || klondike_btn_to_deck(btn) == g_klondike->fromref) {
+            i++;
+            btn = g_klondike->btns[i];
+        }
+        // Cant move cards to the waste or stock, so check to make sure toref is
+        // neither of those
+        if(btn->ch == 'a' || btn->ch == 'm') {
+            // Second button pressed is an illegal move, ignore it
+            g_klondike->toref = NULL;
+        } else {
+            g_klondike->toref = klondike_btn_to_deck(btn);
+        }
+        //check validity of move (eventually)
+        //move card
+        if(g_klondike->fromref && g_klondike->toref) {
+            // Get last card of fromref
+            card = get_last_card(g_klondike->fromref);
+            // Remove that card from fromref
+            // Push that card to the back of toref
+            if(card) {
+                move_card_to_back(&g_klondike->toref, &g_klondike->fromref, card);
+            }
+        }
+        //Flip over card that was under the card moved, if it isn't already up
+        i = count_deck(g_klondike->fromref) - 1;
+        card = get_card_at(&g_klondike->fromref, i);
+        if(card) {
+            engage_flag(&(card->card), CD_UP);
+        }
+        //deactivate buttons
+        klondike_deactivate_btns();
+        // NULL references
+        g_klondike->fromref = NULL;
+        g_klondike->toref = NULL;
+    }
+    //if btncount is 1, and fromref is the deck, then we need to draw three
+    //cards from the stock and put it on the waste
+    if(g_klondike->fromref == g_klondike->deck) {
+        klondike_deactivate_btns();
+        g_klondike->fromref = NULL;
+        draw_cards_back(&g_klondike->deck, &g_klondike->waste, 3);
+        card = g_klondike->waste;
+        while(card) {
+            engage_flag(&(card->card), CD_UP);
+            card = card->next;
+        }
+    }
+}
 
+Deck* klondike_btn_to_deck(Button *btn) {
+    Deck *result = NULL;
+    switch(btn->num) {
+        case 0: result = g_klondike->waste; break; // a
+        case 1: result = g_klondike->tableau[0]; break; // b
+        case 2: result = g_klondike->tableau[1]; break; // c
+        case 3: result = g_klondike->tableau[2]; break; // d
+        case 4: result = g_klondike->tableau[3]; break; // e
+        case 5: result = g_klondike->tableau[4]; break; // f
+        case 6: result = g_klondike->tableau[5]; break; // g
+        case 7: result = g_klondike->tableau[6]; break; // h
+        case 8: result = g_klondike->foundation[0]; break; // i
+        case 9: result = g_klondike->foundation[1]; break; // j
+        case 10: result = g_klondike->foundation[2]; break; // k
+        case 11: result = g_klondike->foundation[3]; break; // l
+        case 12: result = g_klondike->deck; break; // m, move 3 cards from stock to waste
+        default: break;
+    }
+    return result;
 }
 
 void klondike_draw(void) {
@@ -312,30 +351,23 @@ void klondike_draw(void) {
     int i = 0, x = 0, y = 0;
     Deck *tmp = NULL;
     Button *btn = NULL;
+
+    // Clear the screen
     scr_clear();
-    /*
-     * deck at 1,1
-     * waste at 2,6
-     * tableau[0] at 13,1
-     * tableau[1] at 20,1 
-     * tableau[2] at 27,1
-     * tableau[3] at 34,1
-     * tableau[4] at 41,1
-     * tableau[5] at 48,1
-     * tableau[6] at 55,1
-     * foundation[0] at 68,1
-     * foundation[1] at 75,1
-     * foundation[2] at 68,8
-     * foundation[3] at 75,8
-     * message at 23,0
-     * [m] at 2,0
-     * [b](1) at 13,0
-     * [c](2) at 20,0
-     * [d](3) at 27,0
-    */
+
+    // Draw the stock/button
     btn = g_klondike->btns[12];
-    pt_deck_stack_clr_at(1+xo,1+yo,g_klondike->deckcolor);
-    klondike_draw_btn(btn, 1+xo, 0+yo);
+    i = count_deck(g_klondike->deck);
+    if(i > 2) {
+        pt_deck_stack_clr_at(1+xo,1+yo,g_klondike->deckcolor);
+    } else if (i > 0) {
+        pt_card_back_clr_at(1+xo,1+yo,g_klondike->deckcolor);
+    }
+    if(g_klondike->deck) {
+        klondike_draw_btn(btn, 1+xo, 0+yo);
+    }
+
+    // Draw the tableaus/buttons
     for(i = 0; i < 7; i++) {
         tmp = g_klondike->tableau[i];
         x = 13 + (7 * i);
@@ -359,23 +391,79 @@ void klondike_draw(void) {
             klondike_draw_space(x+xo,y+yo);
         }
     }
-    
+
+    // Draw waste pile, and button
+    if(g_klondike->waste) {
+        tmp = g_klondike->waste;
+        x = 2;
+        y = 6;
+        i = count_deck(g_klondike->waste);
+        tmp = get_card_at(&g_klondike->waste, i-3); //3rd to Last card
+        if(tmp){
+            pt_card_clr_at(x+xo,y+yo,tmp->card);
+            y++;
+        }
+        tmp = get_card_at(&g_klondike->waste, i-2); //2nd to Last card
+        if(tmp){
+            pt_card_clr_at(x+xo,y+yo,tmp->card);
+            y++;
+        }
+        tmp = get_card_at(&g_klondike->waste, i-1); //Last card
+        if(tmp){
+            pt_card_clr_at(x+xo,y+yo,tmp->card);
+        }
+        klondike_draw_btn(g_klondike->btns[0],2+xo,13+yo);
+    }
+
+    // Draw the foundations/buttons
+    scr_pt(69+xo,3+yo,"\u2664");
+    scr_pt(76+xo,3+yo,"\u2661");
+    scr_pt(69+xo,10+yo,"\u2662");
+    scr_pt(76+xo,10+yo,"\u2667");
+    klondike_draw_space(67+xo,1+yo);
+    klondike_draw_space(74+xo,1+yo);
+    klondike_draw_space(67+xo,8+yo);
+    klondike_draw_space(74+xo,8+yo);
+    for(i = 0; i < 4; i++) {
+       tmp = g_klondike->foundation[i];
+       switch(i) {
+           case 0: x = 67; y = 1; break;
+           case 1: x = 74; y = 1; break;
+           case 2: x = 67; y = 8; break;
+           case 3: x = 74; y = 8; break;
+           default: break;
+       }
+       if (tmp) {
+           // Draw the last card of the foundation pile 
+           while(tmp->next) {
+               tmp = tmp->next;
+           }
+           pt_card_clr_at(x+xo, y+yo, g_klondike->deckcolor);
+       }
+    } 
+    klondike_draw_btn(g_klondike->btns[8],67+xo,0+yo);
+    klondike_draw_btn(g_klondike->btns[9],74+xo,0+yo);
+    klondike_draw_btn(g_klondike->btns[10],67+xo,7+yo);
+    klondike_draw_btn(g_klondike->btns[11],74+xo,7+yo);
+
+    // Draw the messages at the bottom of the screen
     scr_pt(0,g_screenH - 1,"Stock: %d. Waste: %d. Press q to exit.", count_deck(g_klondike->deck), count_deck(g_klondike->waste));
-    scr_pt(0,g_screenH - 2,"b:%d. c:%d. d:%d. e:%d. f:%d. g:%d. h:%d.",
+    scr_pt(0,g_screenH - 2,"b:%d. c:%d. d:%d. e:%d. f:%d. g:%d. h:%d. Active buttons: %d",
             count_deck(g_klondike->tableau[0]),
             count_deck(g_klondike->tableau[1]),
             count_deck(g_klondike->tableau[2]),
             count_deck(g_klondike->tableau[3]),
             count_deck(g_klondike->tableau[4]),
             count_deck(g_klondike->tableau[5]),
-            count_deck(g_klondike->tableau[6]));
+            count_deck(g_klondike->tableau[6]),
+            klondike_count_selected_btns());
     scr_reset();
 }
 
 void klondike_draw_space(int x, int y) {
 //U+255x	═	║	╒	╓	╔	╕	╖	╗	╘	╙	╚	╛	╜	╝	╞	╟
     scr_pt(x,y, "\u2554   \u2557");
-    scr_pt(x,y+5,"\u255A    \u255D");
+    scr_pt(x,y+4,"\u255A   \u255D");
 }
 
 void klondike_draw_btn(Button *btn, int x, int y) {

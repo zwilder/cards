@@ -26,6 +26,8 @@ typedef struct {
     Deck *waste; // "Waste" pile, drawn off the deck
     Deck **tableau; // Tableaus, 7 of them
     Deck **foundation; // Foundations, 4 of them (0H,1D,2C,3S)
+    Deck *fromref; 
+    Deck *toref; 
     int flags;
     int num_btns;
     Button **btns;
@@ -45,6 +47,7 @@ void klondike_deactivate_btns(void);
 void klondike_toggle_btn(Button *btn);
 int klondike_count_selected_btns(void);
 void klondike_update(void);
+Deck* klondike_btn_to_deck(Button *btn);
 void klondike_draw(void);
 void klondike_draw_space(int x, int y);
 void klondike_draw_btn(Button *btn, int x, int y);
