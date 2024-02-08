@@ -35,6 +35,7 @@ typedef struct {
     char *msg;
 } Klondike;
 
+extern Klondike* g_klondike;
 /**********************
  * klondike.c functions
  **********************/
@@ -42,12 +43,24 @@ void klondike_init(void);
 void klondike_deal(void);
 void klondike_cleanup(void);
 void klondike_loop(void);
+
+/**********************
+ * klondike_events.c
+ *********************/
 bool klondike_events(void);
 void klondike_deactivate_btns(void);
 void klondike_toggle_btn(Button *btn);
 int klondike_count_selected_btns(void);
+
+/**********************
+ * klondike_update.c
+ **********************/
 void klondike_update(void);
 Deck* klondike_btn_to_deck(Button *btn);
+
+/**********************
+ * klondike_draw.c
+ **********************/
 void klondike_draw(void);
 void klondike_draw_space(int x, int y);
 void klondike_draw_btn(Button *btn, int x, int y);
