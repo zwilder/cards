@@ -96,6 +96,7 @@ void draw_cards(Deck **from, Deck **to, int n);
 void draw_card_back(Deck **from, Deck **to);
 void draw_cards_back(Deck **from, Deck **to, int n);
 void add_cards(Deck **from, Deck **to); 
+void add_cards_back(Deck **from, Deck **to);
 
 /*******************
  * Card Interactions

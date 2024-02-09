@@ -51,12 +51,18 @@ bool klondike_events(void);
 void klondike_deactivate_btns(void);
 void klondike_toggle_btn(Button *btn);
 int klondike_count_selected_btns(void);
+void klondike_msg(char *msg,...);
 
 /**********************
  * klondike_update.c
  **********************/
 void klondike_update(void);
 Deck* klondike_btn_to_deck(Button *btn);
+bool klondike_deck_is_tableau(Deck *deck);
+bool klondike_btn_is_tableau(Button *btn);
+bool klondike_deck_is_foundation(Deck *deck);
+bool klondike_btn_is_foundation(Button *btn);
+void klondike_automove(void);
 
 /**********************
  * klondike_draw.c

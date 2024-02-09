@@ -22,17 +22,25 @@
 void klondike_update(void) {
     // Count the buttons, if there are exactly two then we need to move cards
     // we need to keep track of the tableau it responds to
-    Deck *card = NULL;
+    Deck *card = NULL, *tocard = NULL;
     Button *btn = g_klondike->btns[0];
     int btncount = klondike_count_selected_btns();
     int i = 0;
+    klondike_automove();
     if ((1 == btncount) && !g_klondike->fromref) {
         //Only one deck selected, store that as our "from" reference
         while(!btn->selected) {
             i++;
             btn = g_klondike->btns[i];
         }
-        g_klondike->fromref = klondike_btn_to_deck(btn);
+        if(klondike_btn_is_foundation(btn)) {
+            // Can't move cards from a foundation
+            klondike_deactivate_btns();
+            g_klondike->fromref = NULL;
+            //klondike_msg("Can't move cards from a foundation.");
+        } else {
+            g_klondike->fromref = klondike_btn_to_deck(btn);
+        }
     } else if (2 == btncount) {
         //Exactly two buttons active, move card from "fromref" to "toref"
         //Figure out what toref is
@@ -44,6 +52,7 @@ void klondike_update(void) {
         // neither of those
         if(btn->ch == 'a' || btn->ch == 'm') {
             // Second button pressed is an illegal move, ignore it
+            //klondike_msg("Can't move cards to the waste/stock.");
             g_klondike->toref = NULL;
         } else {
             g_klondike->toref = klondike_btn_to_deck(btn);
@@ -56,7 +65,36 @@ void klondike_update(void) {
             // Remove that card from fromref
             // Push that card to the back of toref
             if(card) {
-                move_card_to_back(&g_klondike->toref, &g_klondike->fromref, card);
+                tocard = get_last_card(g_klondike->toref);
+                if(klondike_deck_is_tableau(g_klondike->toref)) {
+                    // Moving card to tableau, make sure card is:
+                    // - Alternate color
+                    // - Descending sequence
+                    if(card_alt_color(tocard->card,card->card) &&
+                            card_in_dec_sequence(card->card,tocard->card)) {
+                        //Success, valid move
+                        move_card_to_back(&g_klondike->toref, &g_klondike->fromref, card);
+                        klondike_msg(NULL);
+                    } else {
+                        //Invalid move
+                        klondike_msg("Invalid move.");
+                    }
+                }
+                if(klondike_deck_is_foundation(g_klondike->toref)) {
+                    //Trying to move card to a foundation, so is:
+                    //- The suite of the foundation the same as the card?
+                    //- The card in asc sequence with the last card on the
+                    //  foundation?
+                    if (!tocard) {
+                        klondike_msg("Nothing in foundation.");
+                    } else if(card_same_suit(card->card,tocard->card) &&
+                            card_in_asc_sequence(card->card,tocard->card)) {
+                        // Valid move
+                    } else {
+                        // Invalid move
+                        klondike_msg("Invalid move.");
+                    }
+                }
             }
         }
         //Flip over card that was under the card moved, if it isn't already up
@@ -76,11 +114,17 @@ void klondike_update(void) {
     if(g_klondike->fromref == g_klondike->deck) {
         klondike_deactivate_btns();
         g_klondike->fromref = NULL;
-        draw_cards_back(&g_klondike->deck, &g_klondike->waste, 3);
-        card = g_klondike->waste;
-        while(card) {
-            engage_flag(&(card->card), CD_UP);
-            card = card->next;
+        if(g_klondike->deck) {
+            draw_cards_back(&g_klondike->deck, &g_klondike->waste, 3);
+            card = g_klondike->waste;
+            while(card) {
+                engage_flag(&(card->card), CD_UP);
+                card = card->next;
+            }
+        } else {
+            // No cards in the deck, add the waste back to the deck
+            // This **should** work, but adds the cards back in the wrong order
+            add_cards_back(&g_klondike->waste, &g_klondike->deck);
         }
     }
 }
@@ -104,4 +148,90 @@ Deck* klondike_btn_to_deck(Button *btn) {
         default: break;
     }
     return result;
+}
+
+bool klondike_deck_is_tableau(Deck *deck) {
+    int i = 0;
+    for(i = 0; i < 7; i++) {
+        if(deck == g_klondike->tableau[i]) {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool klondike_btn_is_tableau(Button *btn) {
+    return (klondike_deck_is_tableau(klondike_btn_to_deck(btn)));
+}
+
+bool klondike_deck_is_foundation(Deck *deck) {
+    int i = 0;
+    for(i = 0; i < 4; i++) {
+        if(deck == g_klondike->foundation[i]) {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool klondike_btn_is_foundation(Button *btn) {
+    return (klondike_deck_is_foundation(klondike_btn_to_deck(btn)));
+}
+
+void klondike_automove(void) {
+    // check each tableau's last card, and if it can be moved to a foundation,
+    // move it
+    // Foundations, 4 of them (0H,1D,2C,3S)
+    int i = 0;
+    int cflags = 0;
+    Deck *card = NULL;
+    // Check tableaus
+    for(i = 0; i < 7; i++) {
+        card = get_last_card(g_klondike->tableau[i]); 
+        if(!card) continue;
+        cflags = card->card;
+        if(check_flag(cflags, CD_H) && check_flag(cflags, CD_A)) {
+            //move_card_to_back(&g_klondike->tableau[i], &g_klondike->foundation[0],card);
+            //g_klondike->foundation[0] = remove_card(&g_klondike->tableau[i],card);
+            draw_card(&g_klondike->tableau[i],&g_klondike->foundation[0]);
+        }
+        if(check_flag(cflags, CD_D) && check_flag(cflags, CD_A)) {
+            //move_card_to_back(&g_klondike->tableau[i], &g_klondike->foundation[1],card);
+            //g_klondike->foundation[1] = remove_card(&g_klondike->tableau[i],card);
+            draw_card(&g_klondike->tableau[i],&g_klondike->foundation[1]);
+        }
+        if(check_flag(cflags, CD_C) && check_flag(cflags, CD_A)) {
+            //move_card_to_back(&g_klondike->tableau[i], &g_klondike->foundation[2],card);
+            //g_klondike->foundation[2] = remove_card(&g_klondike->tableau[i],card);
+            draw_card(&g_klondike->tableau[i],&g_klondike->foundation[2]);
+        }
+        if(check_flag(cflags, CD_S) && check_flag(cflags, CD_A)) {
+            //move_card_to_back(&g_klondike->tableau[i], &g_klondike->foundation[3],card);
+            //g_klondike->foundation[3] = remove_card(&g_klondike->tableau[i],card);
+            draw_card(&g_klondike->tableau[i],&g_klondike->foundation[3]);
+        }
+    }
+    // Check waste
+    /*
+    card = get_last_card(g_klondike->waste);
+    if(card) {
+        cflags = card->card;
+        if(check_flag(cflags, CD_H) && check_flag(cflags, CD_A)) {
+            klondike_msg("Ace of Hearts on waste");
+            move_card_to_back(&g_klondike->waste, &g_klondike->foundation[0],card);
+        }
+        if(check_flag(cflags, CD_D) && check_flag(cflags, CD_A)) {
+            klondike_msg("Ace of Diamonds on waste");
+            move_card_to_back(&g_klondike->waste, &g_klondike->foundation[1],card);
+        }
+        if(check_flag(cflags, CD_C) && check_flag(cflags, CD_A)) {
+            klondike_msg("Ace of Clubs on waste");
+            move_card_to_back(&g_klondike->waste, &g_klondike->foundation[2],card);
+        }
+        if(check_flag(cflags, CD_S) && check_flag(cflags, CD_A)) {
+            klondike_msg("Ace of Spades on waste");
+            move_card_to_back(&g_klondike->waste, &g_klondike->foundation[3],card);
+        }
+    }
+    */
 }

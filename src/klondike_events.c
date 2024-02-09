@@ -63,3 +63,17 @@ void klondike_toggle_btn(Button *btn) {
     btn->selected = !(btn->selected);
 }
 
+void klondike_msg(char *msg,...) {
+    if(g_klondike->msg) {
+        free(g_klondike->msg);
+        g_klondike->msg = NULL;
+    }
+    if(!msg) return;
+    va_list args;
+    va_start(args,msg);
+    int i = strlen(msg) + 1;
+    g_klondike->msg = malloc(sizeof(char) * i);
+    //g_klondike->msg = strncpy(g_klondike->msg, msg, i);
+    vsnprintf(g_klondike->msg,i,msg,args);
+    va_end(args);
+}

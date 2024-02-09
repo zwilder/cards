@@ -505,6 +505,7 @@ void shuffle_deck(Deck **headref, int rounds) {
 void push_card(Deck **headref, Deck *card) {
     if(!card) return;
     if(!(*headref)) {
+        card->next = NULL;
         *headref = card;
         return;
     }
@@ -654,6 +655,13 @@ void add_cards(Deck **from, Deck **to) {
     if(!(*from)) return;
     while(*from) {
         draw_card(from, to);
+    }
+}
+
+void add_cards_back(Deck **from, Deck **to) {
+    if(!(*from)) return;
+    while(*from) {
+        draw_card_back(from, to);
     }
 }
 

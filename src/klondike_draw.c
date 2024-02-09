@@ -44,9 +44,9 @@ void klondike_draw(void) {
     } else if (i > 0) {
         pt_card_back_clr_at(1+xo,1+yo,g_klondike->deckcolor);
     }
-    if(g_klondike->deck) {
+    //if(g_klondike->deck) {
         klondike_draw_btn(btn, 2+xo, 0+yo);
-    }
+    //}
 
     // Draw the tableaus/buttons
     for(i = 0; i < 7; i++) {
@@ -97,10 +97,11 @@ void klondike_draw(void) {
     }
 
     // Draw the foundations/buttons
-    scr_pt(69+xo,3+yo,"\u2664");
-    scr_pt(76+xo,3+yo,"\u2661");
-    scr_pt(69+xo,10+yo,"\u2662");
-    scr_pt(76+xo,10+yo,"\u2667");
+    // Foundations, 4 of them (0H,1D,2C,3S)
+    scr_pt(69+xo,3+yo,"\u2661"); //2661 2662 2667 2664 ♡♢♤♧
+    scr_pt(76+xo,3+yo,"\u2662"); 
+    scr_pt(69+xo,10+yo,"\u2667");
+    scr_pt(76+xo,10+yo,"\u2664");
     klondike_draw_space(67+xo,1+yo);
     klondike_draw_space(74+xo,1+yo);
     klondike_draw_space(67+xo,8+yo);
@@ -119,7 +120,7 @@ void klondike_draw(void) {
            while(tmp->next) {
                tmp = tmp->next;
            }
-           pt_card_clr_at(x+xo, y+yo, g_klondike->deckcolor);
+           pt_card_clr_at(x+xo, y+yo, tmp->card);
        }
     } 
     klondike_draw_btn(g_klondike->btns[8],67+xo,0+yo);
@@ -129,6 +130,15 @@ void klondike_draw(void) {
 
     // Draw the messages at the bottom of the screen
     scr_pt(0,g_screenH - 1,"Stock: %d. Waste: %d. Press q to exit.", count_deck(g_klondike->deck), count_deck(g_klondike->waste));
+    scr_pt(0,g_screenH - 3,"Foundations: H%d,D%d,C%d,S%d.",
+            count_deck(g_klondike->foundation[0]),
+            count_deck(g_klondike->foundation[1]),
+            count_deck(g_klondike->foundation[2]),
+            count_deck(g_klondike->foundation[3]));
+    if(g_klondike->msg) {
+        scr_pt(0, g_screenH - 2, "%s", g_klondike->msg);
+    }
+    /*
     scr_pt(0,g_screenH - 2,"b:%d. c:%d. d:%d. e:%d. f:%d. g:%d. h:%d. Active buttons: %d",
             count_deck(g_klondike->tableau[0]),
             count_deck(g_klondike->tableau[1]),
@@ -138,6 +148,7 @@ void klondike_draw(void) {
             count_deck(g_klondike->tableau[5]),
             count_deck(g_klondike->tableau[6]),
             klondike_count_selected_btns());
+    */
     scr_reset();
 }
 
